@@ -7,7 +7,7 @@ $user = 'cristi';
 
 $php = 'php';
 $userAndServer = $user . '@'. $server;
-$repository = "/cripantea/assicura-ai.git";
+$repository = "/cripantea/piazzole-vismara.git";
 $npm = 'npm';
 
 $branch = $branch ?? 'main';
