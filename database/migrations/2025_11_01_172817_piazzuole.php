@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up()
     {
-        Schema::create('piazzuole', function (Blueprint $table) {
+        Schema::create('piazzole', function (Blueprint $table) {
             $table->id();
 
             $table->string('identificativo')->unique();
@@ -19,6 +19,6 @@ return new class extends Migration {
 
     public function down()
     {
-        Schema::dropIfExists('piazzuole');
+        Schema::dropIfExists('piazzole');
     }
 };

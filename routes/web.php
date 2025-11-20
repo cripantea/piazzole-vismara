@@ -1,27 +1,27 @@
 <?php
 
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ContrattoController;
+use App\Http\Controllers\PiazzolaController;
+use App\Http\Controllers\ScadenzaController;
 use App\Models\Cliente;
 use App\Models\Contratto;
 use App\Models\Scadenza;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    $listaScadenze=Scadenza::all();
-    return view('scadenze.index', compact('listaScadenze'));
-})->name('scadenze.index');
+// Homepage -> Scadenze
+Route::get('/', [ScadenzaController::class, 'index'])->name('home');
+
+// Scadenze
+Route::get('scadenze', [ScadenzaController::class, 'index'])->name('scadenze.index');
+Route::put('scadenze/{scadenza}', [ScadenzaController::class, 'update'])->name('scadenze.update');
+Route::post('scadenze/{scadenza}/paga', [ScadenzaController::class, 'segnaComePagata'])->name('scadenze.paga');
+Route::post('scadenze/{scadenza}/rimuovi-pagamento', [ScadenzaController::class, 'rimuoviPagamento'])->name('scadenze.rimuovi-pagamento');
 
 
-Route::get('/contratti', function () {
-    $listaContratti=Contratto::all();
-    return view('contratti.index', compact('listaContratti'));
-})->name('contratti.index');
+Route::resource('contratti', ContrattoController::class);
+Route::post('contratti/genera-scadenze', [ContrattoController::class, 'generaScadenze'])
+    ->name('contratti.genera-scadenze');
+Route::resource('clienti', ClienteController::class);
 
-Route::get('/clienti', function () {
-    $listaClienti=Cliente::all();
-    return view('clienti.index', compact('listaClienti'));
-})->name('clienti.index');
-
-Route::get('/piazzuole', function () {
-    $piazzuole=\App\Models\Piazzuola::all();
-    return view('piazzuole.index', compact('piazzuole'));
-})->name('piazzuole.index');
+Route::resource('piazzole', PiazzolaController::class);

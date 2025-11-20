@@ -13,14 +13,13 @@ return new class extends Migration
     {
         Schema::create('contratti', function (Blueprint $table) {
             $table->id();
-            $table->integer('client_id')->unsigned();
-            $table->foreign('client_id')->references('id')->on('clienti');
-            $table->integer('piazzuola_id')->unsigned();
-            $table->foreign('piazzuola_id')->references('id')->on('piazzuole');
-            $table->date('data_start');
-            $table->date('data_end')->nullable();
-            $table->decimal('importo_totale', 10, 2);
-            $table->boolean('is_active')->default(false);
+            $table->foreignId('piazzola_id')->constrained('piazzole')->onDelete('cascade');
+            $table->foreignId('cliente_id')->constrained('clienti')->onDelete('cascade');
+            $table->date('data_inizio');
+            $table->date('data_fine');
+            $table->decimal('valore', 10, 2);
+            $table->integer('numero_rate');
+            $table->enum('stato', ['attivo', 'completato', 'sospeso'])->default('attivo');
             $table->timestamps();
         });
     }

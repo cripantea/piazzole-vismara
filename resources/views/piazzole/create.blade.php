@@ -1,13 +1,28 @@
 @extends('layout')
 
-@section('title', 'Nuovo Cliente')
+@section('title', 'Nuova Piazzola')
 
 @section('content')
     <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-sm p-6">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Nuovo Cliente</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Nuova Piazzola</h1>
 
-        <form action="{{ route('clienti.store') }}" method="POST">
+        <form action="{{ route('piazzole.store') }}" method="POST">
             @csrf
+
+            <div class="mb-4">
+                <label for="identificativo" class="block text-sm font-medium text-gray-700 mb-2">
+                    Identificativo *
+                </label>
+                <input type="text"
+                       name="identificativo"
+                       id="identificativo"
+                       value="{{ old('identificativo') }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('identificativo') border-red-500 @enderror"
+                       required>
+                @error('identificativo')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
 
             <div class="mb-6">
                 <label for="nome" class="block text-sm font-medium text-gray-700 mb-2">
@@ -18,8 +33,7 @@
                        id="nome"
                        value="{{ old('nome') }}"
                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('nome') border-red-500 @enderror"
-                       required
-                       autofocus>
+                       required>
                 @error('nome')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -30,7 +44,7 @@
                         class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
                     Salva
                 </button>
-                <a href="{{ route('clienti.index') }}"
+                <a href="{{ route('piazzole.index') }}"
                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg transition-colors">
                     Annulla
                 </a>

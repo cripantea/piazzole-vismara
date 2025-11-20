@@ -4,19 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Piazzuola extends Model
+class Piazzola extends Model
 {
-    protected $table = 'piazzuole';
+    protected $table = 'piazzole';
     protected $guarded = [];
 
     public function contratti()
     {
-        return $this->hasMany(Contratto::class, 'piazzuola_id');
+        return $this->hasMany(Contratto::class, 'piazzola_id');
     }
 
     public function contratto()
     {
-        return $this->hasOne(Contratto::class, 'piazzuola_id');
+        return $this->hasOne(Contratto::class, 'piazzola_id');
     }
 
 }

@@ -1,66 +1,74 @@
 <?php
 
+// app/Http/Controllers/ClienteController.php
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreClienteRequest;
-use App\Http\Requests\UpdateClienteRequest;
 use App\Models\Cliente;
+use Illuminate\Http\Request;
 
 class ClienteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = Cliente::query();
+
+        // Filtro per ricerca
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where('nome', 'like', "%{$search}%");
+        }
+
+        // Ordinamento
+        $sortBy = $request->get('sort_by', 'nome');
+        $sortOrder = $request->get('sort_order', 'asc');
+        $query->orderBy($sortBy, $sortOrder);
+
+        $clienti = $query->paginate(15);
+
+        return view('clienti.index', compact('clienti'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('clienti.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreClienteRequest $request)
+    public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'nome' => 'required|string|max:255'
+        ]);
+
+        Cliente::create($validated);
+
+        return redirect()->route('clienti.index')
+            ->with('success', 'Cliente creato con successo!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Cliente $cliente)
+    public function edit(int $id)
     {
-        //
+        $cliente = Cliente::findOrFail($id);
+        return view('clienti.edit', compact('cliente'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Cliente $cliente)
+    public function update(Request $request, int $id)
     {
-        //
+        $validated = $request->validate([
+            'nome' => 'required|string|max:255'
+        ]);
+        $cliente = Cliente::findOrFail($id);
+        $cliente->update($validated);
+
+        return redirect()->route('clienti.index')
+            ->with('success', 'Cliente aggiornato con successo!');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateClienteRequest $request, Cliente $cliente)
+    public function destroy(int $id)
     {
-        //
-    }
+        $cliente = Cliente::findOrFail($id);
+        $cliente->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Cliente $cliente)
-    {
-        //
+        return redirect()->route('clienti.index')
+            ->with('success', 'Cliente eliminato con successo!');
     }
 }

@@ -1,15 +1,15 @@
 @extends('layout')
 
-@section('title', 'Clienti')
+@section('title', 'Piazzole')
 
 @section('content')
     <div class="bg-white rounded-lg shadow-sm p-6">
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Clienti</h1>
-            <a href="{{ route('clienti.create') }}"
+            <h1 class="text-3xl font-bold text-gray-800">Piazzole</h1>
+            <a href="{{ route('piazzole.create') }}"
                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                + Nuovo Cliente
+                + Nuova Piazzola
             </a>
         </div>
 
@@ -21,19 +21,19 @@
         @endif
 
         <!-- Barra di ricerca -->
-        <form method="GET" action="{{ route('clienti.index') }}" class="mb-6">
+        <form method="GET" action="{{ route('piazzole.index') }}" class="mb-6">
             <div class="flex gap-2">
                 <input type="text"
                        name="search"
                        value="{{ request('search') }}"
-                       placeholder="Cerca per nome..."
+                       placeholder="Cerca per identificativo o nome..."
                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <button type="submit"
                         class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors">
                     Cerca
                 </button>
                 @if(request('search'))
-                    <a href="{{ route('clienti.index') }}"
+                    <a href="{{ route('piazzole.index') }}"
                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg transition-colors">
                         Reset
                     </a>
@@ -47,16 +47,22 @@
                 <thead class="bg-gray-50">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <a href="{{ route('clienti.index', ['sort_by' => 'nome', 'sort_order' => request('sort_order') === 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}"
+                        <a href="{{ route('piazzole.index', ['sort_by' => 'identificativo', 'sort_order' => request('sort_order') === 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}"
                            class="hover:text-gray-700">
-                            Nome
-                            @if(request('sort_by', 'nome') === 'nome')
+                            Identificativo
+                            @if(request('sort_by', 'identificativo') === 'identificativo')
                                 <span>{{ request('sort_order', 'asc') === 'asc' ? '↑' : '↓' }}</span>
                             @endif
                         </a>
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Creato il
+                        <a href="{{ route('piazzole.index', ['sort_by' => 'nome', 'sort_order' => request('sort_order') === 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}"
+                           class="hover:text-gray-700">
+                            Nome
+                            @if(request('sort_by') === 'nome')
+                                <span>{{ request('sort_order', 'asc') === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
                     </th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Azioni
@@ -64,23 +70,25 @@
                 </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                @forelse($clienti as $cliente)
+
+                @forelse($piazzole as $piazzola)
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {{ $cliente->nome }}
+                            {{ $piazzola->identificativo }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {{ $cliente->created_at->format('d/m/Y') }}
+                            {{ $piazzola->nome }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{{ route('clienti.edit', $cliente) }}"
+
+                            <a href="{{ route('piazzole.edit', $piazzola->id) }}"
                                class="text-blue-600 hover:text-blue-900 mr-3">
                                 Modifica
                             </a>
-                            <form action="{{ route('clienti.destroy', $cliente) }}"
+                            <form action="{{ route('piazzole.destroy', $piazzola->id) }}"
                                   method="POST"
                                   class="inline"
-                                  onsubmit="return confirm('Sei sicuro di voler eliminare questo cliente?');">
+                                  onsubmit="return confirm('Sei sicuro di voler eliminare questa piazzola?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-900">
@@ -92,7 +100,7 @@
                 @empty
                     <tr>
                         <td colspan="3" class="px-6 py-4 text-center text-gray-500">
-                            Nessun cliente trovato
+                            Nessuna piazzola trovata
                         </td>
                     </tr>
                 @endforelse
@@ -102,7 +110,7 @@
 
         <!-- Paginazione -->
         <div class="mt-6">
-            {{ $clienti->withQueryString()->links() }}
+            {{ $piazzole->withQueryString()->links() }}
         </div>
     </div>
 @endsection
