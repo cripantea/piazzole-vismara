@@ -135,13 +135,24 @@
                 </p>
             </div>
 
+            <!-- Errore validazione scadenze -->
+            @error('scadenze')
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                {{ $message }}
+            </div>
+            @enderror
+
             <!-- Tabella Scadenze -->
             <div id="scadenzeContainer" class="hidden">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Scadenze Generate</h2>
                 <p class="text-sm text-gray-600 mb-4">
                     Puoi modificare le date e gli importi delle singole rate prima di salvare
                 </p>
-                <div class="overflow-x-auto mb-6">
+
+                <!-- Alert validazione somma -->
+                <div id="validationAlert" class="hidden mb-4"></div>
+
+                <div class="overflow-x-auto mb-4">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                         <tr>
@@ -153,6 +164,24 @@
                         <tbody id="scadenzeTableBody" class="bg-white divide-y divide-gray-200">
                         <!-- Le righe verranno generate dinamicamente -->
                         </tbody>
+                        <tfoot class="bg-gray-50">
+                        <tr>
+                            <td colspan="2" class="px-6 py-3 text-right text-sm font-bold text-gray-700">
+                                Totale:
+                            </td>
+                            <td class="px-6 py-3 text-sm font-bold text-gray-900">
+                                € <span id="totaleScadenze">0.00</span>
+                            </td>
+                        </tr>
+                        <tr id="differenzaRow" class="hidden">
+                            <td colspan="2" class="px-6 py-3 text-right text-sm font-bold text-red-700">
+                                Differenza:
+                            </td>
+                            <td class="px-6 py-3 text-sm font-bold text-red-700">
+                                € <span id="differenza">0.00</span>
+                            </td>
+                        </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>
@@ -178,6 +207,48 @@
             const container = document.getElementById('scadenzeContainer');
             const tableBody = document.getElementById('scadenzeTableBody');
             const submitBtn = document.getElementById('submitBtn');
+            const totaleSpan = document.getElementById('totaleScadenze');
+            const differenzaSpan = document.getElementById('differenza');
+            const differenzaRow = document.getElementById('differenzaRow');
+            const validationAlert = document.getElementById('validationAlert');
+
+            // Funzione per calcolare e validare la somma
+            function validaSommaScadenze() {
+                const valoreContratto = parseFloat(document.getElementById('valore').value) || 0;
+                let sommaScadenze = 0;
+
+                // Calcola la somma di tutte le scadenze
+                const importiInputs = tableBody.querySelectorAll('input[name*="[importo]"]');
+                importiInputs.forEach(input => {
+                    sommaScadenze += parseFloat(input.value) || 0;
+                });
+
+                // Aggiorna il totale visualizzato
+                totaleSpan.textContent = sommaScadenze.toFixed(2);
+
+                // Calcola la differenza
+                const differenza = Math.abs(sommaScadenze - valoreContratto);
+                differenzaSpan.textContent = differenza.toFixed(2);
+
+                // Mostra/nascondi la riga differenza e alert
+                if (differenza > 0.01) {
+                    differenzaRow.classList.remove('hidden');
+                    validationAlert.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded';
+                    validationAlert.textContent = `⚠️ ATTENZIONE: La somma delle scadenze (€ ${sommaScadenze.toFixed(2)}) non corrisponde al valore del contratto (€ ${valoreContratto.toFixed(2)}). Differenza: € ${differenza.toFixed(2)}`;
+                    validationAlert.classList.remove('hidden');
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    return false;
+                } else {
+                    differenzaRow.classList.add('hidden');
+                    validationAlert.className = 'bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded';
+                    validationAlert.textContent = '✓ La somma delle scadenze corrisponde al valore del contratto';
+                    validationAlert.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    return true;
+                }
+            }
 
             generaBtn.addEventListener('click', async function() {
                 const dataInizio = document.getElementById('data_inizio').value;
@@ -219,34 +290,49 @@
                     data.scadenze.forEach((scadenza, index) => {
                         const row = document.createElement('tr');
                         row.className = 'hover:bg-gray-50';
-
                         row.innerHTML = `
-    <td class="px-6 py-4 text-sm font-medium text-gray-900">Rata ${scadenza.numero_rata}</td>
-    <td class="px-6 py-4">
-        <input type="date"
-               name="scadenze[${index}][data]"
-               value="${scadenza.data}"
-               class="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-               required>
-    </td>
-    <td class="px-6 py-4">
-        <input type="number"
-               name="scadenze[${index}][importo]"
-               value="${scadenza.importo}"
-               step="0.01"
-               class="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 w-32"
-               required>
-    </td>
-`;                        tableBody.appendChild(row);
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">Rata ${scadenza.numero_rata}</td>
+                    <td class="px-6 py-4">
+                        <input type="date"
+                               name="scadenze[${index}][data]"
+                               value="${scadenza.data}"
+                               class="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                               required>
+                    </td>
+                    <td class="px-6 py-4">
+                        <input type="number"
+                               name="scadenze[${index}][importo]"
+                               value="${scadenza.importo}"
+                               step="0.01"
+                               class="importo-input px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 w-32"
+                               required>
+                    </td>
+                `;
+                        tableBody.appendChild(row);
                     });
 
-                    // Mostra il container e abilita il submit
+                    // Aggiungi event listener agli input degli importi
+                    tableBody.querySelectorAll('.importo-input').forEach(input => {
+                        input.addEventListener('input', validaSommaScadenze);
+                    });
+
+                    // Mostra il container
                     container.classList.remove('hidden');
-                    submitBtn.disabled = false;
+
+                    // Valida subito
+                    validaSommaScadenze();
 
                 } catch (error) {
                     alert('Errore nella generazione delle scadenze');
                     console.error(error);
+                }
+            });
+
+            // Validazione al submit del form
+            document.getElementById('contrattoForm').addEventListener('submit', function(e) {
+                if (!validaSommaScadenze()) {
+                    e.preventDefault();
+                    alert('Impossibile salvare: la somma delle scadenze non corrisponde al valore del contratto!');
                 }
             });
         });

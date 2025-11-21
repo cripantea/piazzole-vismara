@@ -46,21 +46,34 @@ class ContrattoController extends Controller
 
     public function store(Request $request)
     {
+        $validated = $request->validate([
+            'piazzola_id' => 'required|exists:piazzole,id',
+            'cliente_id' => 'required|exists:clienti,id',
+            'data_inizio' => 'required|date',
+            'data_fine' => 'required|date|after:data_inizio',
+            'valore' => 'required|numeric|min:0',
+            'numero_rate' => 'required|integer|min:1',
+            'scadenze' => 'required|array',
+            'scadenze.*.data' => 'required|date',
+            'scadenze.*.importo' => 'required|numeric|min:0',
+        ]);
 
-        try {
-            $validated = $request->validate([
-                'piazzola_id' => 'required|exists:piazzole,id',
-                'cliente_id' => 'required|exists:clienti,id',
-                'data_inizio' => 'required|date',
-                'data_fine' => 'required|date|after:data_inizio',
-                'valore' => 'required|numeric|min:0',
-                'numero_rate' => 'required|integer|min:1',
-                'scadenze' => 'required|array',
-                'scadenze.*.data' => 'required|date',
-                'scadenze.*.importo' => 'required|numeric|min:0',
-            ]);
-        } catch (\Exception $ex) {
-            throw $ex;
+        // VALIDAZIONE: Verifica che la somma delle scadenze corrisponda al valore del contratto
+        $sommaScadenze = collect($validated['scadenze'])->sum('importo');
+        $valoreContratto = (float) $validated['valore'];
+
+        // Tolleranza di 0.01€ per arrotondamenti
+        if (abs($sommaScadenze - $valoreContratto) > 0.01) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'scadenze' => sprintf(
+                        'La somma delle scadenze (€ %s) non corrisponde al valore del contratto (€ %s). Differenza: € %s',
+                        number_format($sommaScadenze, 2, ',', '.'),
+                        number_format($valoreContratto, 2, ',', '.'),
+                        number_format(abs($sommaScadenze - $valoreContratto), 2, ',', '.')
+                    )
+                ]);
         }
 
         DB::transaction(function () use ($validated) {
@@ -74,11 +87,12 @@ class ContrattoController extends Controller
                 'numero_rate' => $validated['numero_rate'],
             ]);
 
+            // Crea le scadenze
             foreach ($validated['scadenze'] as $index => $scadenzaData) {
                 Scadenza::create([
                     'contratto_id' => $contratto->id,
                     'numero_rata' => $index + 1,
-                    'data' => $scadenzaData['data'], // era data_scadenza
+                    'data' => $scadenzaData['data'],
                     'importo' => $scadenzaData['importo'],
                 ]);
             }

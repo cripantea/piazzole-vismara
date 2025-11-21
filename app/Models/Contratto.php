@@ -1,18 +1,24 @@
 <?php
+// app/Models/Contratto.php
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Contratto extends Model
 {
-    /** @use HasFactory<\Database\Factories\ContrattoFactory> */
-    use HasFactory;
-
     protected $table = 'contratti';
-    protected $guarded = [];
 
+    protected $fillable = [
+        'piazzola_id',
+        'cliente_id',
+        'data_inizio',
+        'data_fine',
+        'valore',
+        'numero_rate',
+        'stato'
+    ];
 
     protected $casts = [
         'data_inizio' => 'date',
@@ -54,6 +60,19 @@ class Contratto extends Model
         return $this->hasMany(Scadenza::class)
             ->whereNotNull('data_pagamento')
             ->orderBy('data', 'asc');
+    }
+
+    // Verifica se ha scadenze pagate
+    public function hasScadenzePagate()
+    {
+        return $this->scadenze()->whereNotNull('data_pagamento')->exists();
+    }
+
+    // Verifica se tutte le scadenze sono pagate
+    public function tutteScadenzePagate()
+    {
+        return $this->scadenze()->count() > 0 &&
+            $this->scadenze()->whereNull('data_pagamento')->count() === 0;
     }
 
     // Calcola la durata in mesi
