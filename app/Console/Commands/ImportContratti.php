@@ -63,15 +63,10 @@ class ImportContratti extends Command
             try {
                 // Parse data contratto
                 $annoCorrenteDueCifre = substr($dataContrattoStr, -2);
-echo $dataContrattoStr . "\n";
                 if ($annoCorrenteDueCifre !== '25' && $annoCorrenteDueCifre !== '26') {
-echo $annoCorrenteDueCifre . "\n";
                     $dataContrattoStr = substr_replace($dataContrattoStr, '25', -2);
-echo $dataContrattoStr . "\n";
                 }
-                echo $dataContrattoStr . "\n";
                 $dataContratto = $this->parseData($dataContrattoStr);
-echo $dataContratto . "\n";
                 // Parse valore (rimuovi simbolo euro, spazi, punti separatori migliaia)
                 $valore = $this->parseValore($valoreStr);
 
@@ -153,7 +148,7 @@ echo $dataContratto . "\n";
                         'cliente_id' => $cliente->id,
                         'data_inizio' => $dataInizio,
                         'data_fine' => $dataFine,
-                        'valore' => $contrattoData['valore'],
+                        'valore' => $contrattoData['valore']*$numeroRate,
                         'numero_rate' => $numeroRate,
                         'stato' => 'attivo'
                     ]);
@@ -174,7 +169,7 @@ echo $dataContratto . "\n";
                             'contratto_id' => $contratto->id,
                             'numero_rata' => $i + 1,
                             'data' => $dataScadenza,
-                            'importo' => $importo,
+                            'importo' => $contrattoData['valore'],
                         ]);
                     }
 
