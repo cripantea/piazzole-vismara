@@ -108,10 +108,10 @@
                             id="stato_pagamento"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
                         <option value="">Tutti</option>
-                        <option value="pagato" {{ request('stato_pagamento') == 'pagato' ? 'selected' : '' }}>
+                        <option value="pagato" {{ request('stato_pagamento') === 'pagato' ? 'selected' : '' }}>
                             Pagato
                         </option>
-                        <option value="non_pagato" {{ request('stato_pagamento') == 'non_pagato' ? 'selected' : '' }}>
+                        <option value="non_pagato" {{ request('stato_pagamento') === 'non_pagato' ? 'selected' : '' }}>
                             Non Pagato
                         </option>
                     </select>

@@ -77,7 +77,8 @@ echo $dataContratto . "\n";
 
                 // Raccogli le date delle scadenze
                 $dateScadenze = [];
-                for ($i = 4; $i < count($columns); $i++) {
+                $nrCol=count($columns);
+                for ($i = 4; $i < $nrCol; $i++) {
                     $dataScadenzaStr = trim($columns[$i]);
                     if (!empty($dataScadenzaStr)) {
                         $dateScadenze[] = $dataScadenzaStr;
