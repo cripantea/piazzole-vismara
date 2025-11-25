@@ -1,0 +1,72 @@
+piazzola	Nominativo	data  contratto	Canone 	Data scad.	Data scad.	Data scad.	Data scad.
+							
+D1-D2	Ambrosio Express di Ambrosio Christian	1-gen-25	 €732,00 	1-gen-25	1-apr-25	1-lug-25	1-ott-25
+I6	Albanese Michele	31-mar-16	 €1.586,00 	31-mar-25			
+I2	Autotrasporti Soa di Notaro Orlando	1-giu-25	 €442,25 	1-giu-25	1-set-25	1-dic-25	1-mar-26
+H7	GM Driver car di Lazzarin Andrea                 	1-ago-25	 €142,35 	tutti i mesi			
+A1-A2	Assumma Maria                                        	1-lug-25	 €996,33 	1-mar-26	1-lug-25	1-nov-25	
+H10	Bordiga Giampietro	25-mag-24	 €1.708,00 	25-mag-25			
+G6	Bragato Giuliano	1-ago-25	 €427,00 	1-feb-25	1-mag-25	1-ago-25	1-nov-25
+G7	Calzetta Caterina	1-lug-25	 €823,50 	1-lug-25	1-gen-26		
+G11	Camper Sernice di parlato Aniello	1-lug-25	 €396,50 	1-gen-25	1-apr-25	1-lug-25	1-ott-25
+F8	Camporeale Giuseppe	15-dic-16	 €396,50 	15-mar-25	15-giu-25	15-set-25	15-dic-25
+I5	De Light srl (Grimaldi)	12-giu-25	 €845,50 	12-giu-25	12-dic-25		
+E7	Caracciolo Fabrizio	10-lug-16	 €396,50 	10-gen-25	10-apr-25	10-lug-25	10-ott-25
+I3	Carbone Francesco	25-ago-24	 €1.708,00 	25-ago-25			
+L3	Daniela Broda	1-ago-25	 €915,00 	1-feb-25	1-ago-25		
+G9	Carulli Giuseppe	21-apr-23	 €1.708,00 	21-apr-25			
+H1	Uggeri Marco	10-nov-25	 €1.769,00 	10-nov-25			29-nov-25
+D3-D4	Ciuhat Ionel Leon	1-set-25	 €239,00 	tutti i mesi			
+E1	Ciuhat Ionel Leon	1-set-25	 €137,25 	tutti i mesi			
+F4	Colangelo Gianni (contratto COL.VA)	1-mag-25	 €1.830,00 	1-mag-25			
+I1	Corsi Stefano	15-mar-18	 €132,00 	tutti i mesi			
+G4	Curti Furio Giuseppe	1-mag-25	 €1.769,00 	1-mag-25			
+F10	D'Adamo Nicolino	10-gen-22	 €396,50 	10-gen-25	10-apr-25	10-lug-25	10-dic-25
+G8	De Melgazzi Marcello (Svizzero)	10-mar-16	 €325,00 	10-mar-25	10-giu-25	10-set-25	1-dic-25
+F5	Barba Giuseppe	1-giu-25	 €442,25 	1-mar-25	1-giu-25	1-set-25	1-ott-25
+G1	Degani Tizziano	8-ott-16	 793,00 € 	8-apr-25	8-ott-25		
+L4	Dematech srl De Matteis Pierangelo	1-mar-24	 €1.708,00 	1-mar-25			
+F6	Diciaula Giancarlo	22-giu-25	 €884,00 	22-giu-25	22-dic-25		
+L5	Fabbrica Enrico	1-ago-24	 €1.708,00 	1-ago-25			
+H4	Facchini Renato	21-mar-18	 €1.586,00 	21-mar-25			
+E12	 Ferrari Massimo	20-mag-19	 €488,00 	20-mag-25	20-nov-25		
+L2	Sabre srl (Fontanelli Fabrizio)	1-lug-25	 €854,00 	1-gen-25	1-lug-25		
+H6	Leopizzi Francesco 	1-apr-25	 €457,50 	1-gen-25	1-apr-25	1-lug-25	1-nov-25
+B-3/B-4	Franco Antonella	1-feb-16	 €640,50 	1-feb-25	1-mag-25	1-ago-25	1-ott-25
+E6	Galvan Luca Gianni	1-lug-25	 €442,25 	1-gen-25	1-apr-25	1-lug-25	1-ott-25
+H3	Cerabino Michele                                                                                 	18-mag-24	 €1.708,00 	18-mag-25			
+H9	Gessolo Massimo	28-giu-25	 €1.708,00 	28-giu-25			
+L1	Gorgoglione Andrea                                          	7-feb-19	 €396,50 	7-feb-25	7-mag-25	7-ago-25	7-nov-25
+H2	Guarducci Massimo	1-lug-24	 €1.708,00 	1-lug-25			
+G5	Imparato Paola	1-set-24	 €1.708,00 	1-set-25			
+C1-C2	Lazzarin Andrea -  MG Driver Car	1-ago-25	 €233,85 	tutti i mesi			
+F9	Sciannimanico Francesca	1-ago-25	 €915,00 	1-feb-25	1-ago-25		
+C-3/C-4	Leoni Andrea	1-gen-17	 €2.562,00 	1-gen-25			
+H8	Lorenzetti Gian Matteo	16-giu-25	 €854,00 	16-giu-25	16-dic-25		
+H11	Mainiero Claudio	14-apr-16	 €793,00 	14-apr-25	14-ott-25		25-ott-25
+E8	Maraboli Stefano	25-ott-16	 €457,50 	25-gen-25	25-apr-25	25-lug-25	25-ott-25
+E5	Marco Marchi	1-gen-25	 €1.769,00 	1-gen-25			
+I7	Meroni Riccardo	1-gen-25	 €884,50 	1-gen-25	1-lug-25		
+F1	Minervini Corrado	11-ott-18	 €132,20 	Tutti i Mesi			
+I8	Mocanu Mariano                              Starcom s.r.l	1-lug-25	 €1.708,00 	1-lug-25			
+G12	Monfredini Andrea                                                  Simona                                          	1-lug-25	 €442,25 	1-gen-25	1-apr-25	1-lug-25	1-ott-25
+E3	Monopoli Riccardo                                          	1-apr-23	 €1.744,60 	1-apr-25			
+F2	Pestoni Giorgio	1-lug-25	 €427,00 	1-gen-25	1-apr-25	1-lug-25	22-ott-25
+I4	Pria Tiziano	22-apr-21	 €396,50 	22-gen-25	22-apr-25	22-lug-25	1-nov-25
+E2	Pusterla Lara                                                           	24-set-16	 €396,50 	24-mar-25	24-giu-25	24-set-25	24-dic-25
+G10	Rebuzzi Mirko	4-ott-21	 €396,50 	4-gen-25	4-apr-25	4-lug-25	4-ott-25
+G13	Renna Stefano	14-set-20	 €1.586,00 	14-set-25			
+H5	Roberti Luca	16-mar-24	 €1.708,00 	16-mar-25			
+E11	Rossi Marco	1-ott-25	 €1.769,00 	1-ott-25			
+E10	Rossi Maurizio	1-ott-25	 €1.769,00 	1-ott-25			
+I9	Sartorelli Paola	10-nov-23	 €1.708,00 	10-nov-25			
+F11	Satariano Giuseppe	5-ago-25	 €854,00 	5-feb-25	5-ago-25		
+I10	Sem Carlo	1-ago-25	 €1.769,00 	1-ago-25			
+F3	Baisol Soliani Christian	1-giu-25	 €845,50 	1-giu-25	1-dic-25		
+G14	Trabacchi Mauro	3-ago-16	 €488,00 	3-apr-25	3-ago-25	3-dic-25	
+E4	Trisolini Alfredo	10-lug-16	 €396,50 	10-gen-25	10-apr-25	10-lug-25	10-ott-25
+G3	Vighi Ennio	1-ago-24	 €1.708,00 	1-ago-25			
+E9	Catia Moratto	1-ott-25	 €915,00 	1-ott-25	1-apr-25		
+I8	Centro Revisioni Espinasse Srl Borsani	7-lug-25	 €884,50 	7-gen-25	7-lug-25		
+H9	Zucchetti Fabio	10-dic-25	 €884,50 	10-dic-25	10-giu-25		
+H1	Canciani Mattia	1-gen-26	 €1.769,00 	1-gen-26			
