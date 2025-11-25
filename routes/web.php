@@ -26,8 +26,6 @@ Route::post('contratti/{contratto}/chiudi', [ContrattoController::class, 'chiudi
 Route::post('contratti/{contratto}/rinnova', [ContrattoController::class, 'rinnova'])
     ->name('contratti.rinnova');
 
-Route::post('contratti/genera-scadenze', [ContrattoController::class, 'generaScadenze'])
-    ->name('contratti.genera-scadenze');
 Route::resource('clienti', ClienteController::class);
 
 Route::resource('piazzole', PiazzolaController::class);
