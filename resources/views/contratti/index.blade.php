@@ -97,11 +97,11 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{{ route('contratti.edit', $contratto) }}"
+                            <a href="{{ route('contratti.edit', $contratto->id) }}"
                                class="text-blue-600 hover:text-blue-900 mr-3">
                                 Modifica
                             </a>
-                            <form action="{{ route('contratti.destroy', $contratto) }}"
+                            <form action="{{ route('contratti.destroy', $contratto->id) }}"
                                   method="POST"
                                   class="inline"
                                   onsubmit="return confirm('Sei sicuro di voler eliminare questo contratto? Verranno eliminate anche tutte le scadenze associate.');">

@@ -18,8 +18,14 @@ Route::put('scadenze/{scadenza}', [ScadenzaController::class, 'update'])->name('
 Route::post('scadenze/{scadenza}/paga', [ScadenzaController::class, 'segnaComePagata'])->name('scadenze.paga');
 Route::post('scadenze/{scadenza}/rimuovi-pagamento', [ScadenzaController::class, 'rimuoviPagamento'])->name('scadenze.rimuovi-pagamento');
 
-
 Route::resource('contratti', ContrattoController::class);
+Route::post('contratti/genera-scadenze', [ContrattoController::class, 'generaScadenze'])
+    ->name('contratti.genera-scadenze');
+Route::post('contratti/{contratto}/chiudi', [ContrattoController::class, 'chiudi'])
+    ->name('contratti.chiudi');
+Route::post('contratti/{contratto}/rinnova', [ContrattoController::class, 'rinnova'])
+    ->name('contratti.rinnova');
+
 Route::post('contratti/genera-scadenze', [ContrattoController::class, 'generaScadenze'])
     ->name('contratti.genera-scadenze');
 Route::resource('clienti', ClienteController::class);
