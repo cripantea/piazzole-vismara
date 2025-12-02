@@ -42,7 +42,6 @@ class RinnovoAutomaticoContratti extends Command
                     // Calcola le nuove date
                     $nuovaDataInizio = $vecchioContratto->data_fine->copy()->addDay();
                     $nuovaDataFine = $nuovaDataInizio->copy()->addYear()->subDay();
-dd([$nuovaDataFine, $nuovaDataInizio, $vecchioContratto]);
                     // Crea nuovo contratto
                     $nuovoContratto = Contratto::create([
                         'piazzola_id' => $vecchioContratto->piazzola_id,
