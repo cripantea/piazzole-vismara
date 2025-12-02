@@ -5,8 +5,6 @@ use Illuminate\Support\Facades\Artisan;
 
 
 
-Schedule::command('dash:import-ssp')
-    ->hourly();
-
-Schedule::command('dash:check-import-data')
-    ->daily()->at('08:00');
+Schedule::command('contratti:rinnovo-automatico')
+    ->dailyAt('02:00')
+    ->timezone('Europe/Rome');

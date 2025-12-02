@@ -31,6 +31,9 @@ Route::post('contratti/{contratto}/chiudi', [ContrattoController::class, 'chiudi
     ->name('contratti.chiudi');
 Route::post('contratti/{contratto}/rinnova', [ContrattoController::class, 'rinnova'])
     ->name('contratti.rinnova');
+Route::post('contratti/{contratto}/conferma-rinnovo', [ContrattoController::class, 'confermaRinnovo'])
+    ->name('contratti.conferma-rinnovo');
+
 Route::resource('clienti', ClienteController::class);
 
 Route::resource('piazzole', PiazzolaController::class);

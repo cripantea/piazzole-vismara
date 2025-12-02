@@ -13,6 +13,17 @@
             </a>
         </div>
 
+        <!-- Alert per rinnovi da confermare -->
+        @php
+            $contrattiDaConfermare = $contratti->where('rinnovo_automatico', true)->count();
+        @endphp
+
+        @if($contrattiDaConfermare > 0)
+            <div class="bg-orange-100 border border-orange-400 text-orange-800 px-4 py-3 rounded mb-4">
+                <strong>⚠️ Attenzione:</strong> Ci sono {{ $contrattiDaConfermare }} contratt{{ $contrattiDaConfermare > 1 ? 'i' : 'o' }} rinnovati automaticamente che richiedono conferma!
+            </div>
+        @endif
+
         <!-- Messaggi di successo -->
         @if(session('success'))
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
@@ -111,9 +122,12 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($contratti as $contratto)
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-gray-50 {{ $contratto->isRinnovoAutomatico() ? 'bg-orange-50 border-l-4 border-orange-500' : '' }}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             {{ $contratto->piazzola->identificativo }}
+                            @if($contratto->isRinnovoAutomatico())
+                                <span class="ml-2 text-xs bg-orange-500 text-white px-2 py-1 rounded">NUOVO</span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {{ $contratto->cliente->nome }}
@@ -148,23 +162,34 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex justify-end gap-2">
-                                <a href="{{ route('contratti.edit', $contratto->id) }}"
+                            <div class="flex justify-end gap-2 flex-wrap">
+                                @if($contratto->isRinnovoAutomatico())
+                                    <!-- Pulsante Conferma Rinnovo -->
+                                    <form action="{{ route('contratti.conferma-rinnovo', $contratto) }}"
+                                          method="POST"
+                                          class="inline">
+                                        @csrf
+                                        <button type="submit"
+                                                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-semibold">
+                                            ✓ Conferma Rinnovo
+                                        </button>
+                                    </form>
+                                @endif
+
+                                <a href="{{ route('contratti.edit', $contratto) }}"
                                    class="text-blue-600 hover:text-blue-900">
                                     Modifica
                                 </a>
 
-                                @if($contratto->stato !== 'completato')
-                                    @php
-                                    @endphp
-                                    <a href="{{ route('contratti.chiusura', $contratto->id) }}"
+                                @if($contratto->stato !== 'completato' && !$contratto->isRinnovoAutomatico())
+                                    <a href="{{ route('contratti.chiusura', $contratto) }}"
                                        class="text-yellow-600 hover:text-yellow-900">
                                         Chiudi
                                     </a>
                                 @endif
 
-                                @if($contratto->tutteScadenzePagate() && $contratto->stato === 'completato')
-                                    <form action="{{ route('contratti.rinnova', $contratto->id) }}"
+                                @if($contratto->tutteScadenzePagate() && $contratto->stato === 'completato' && !$contratto->isRinnovoAutomatico())
+                                    <form action="{{ route('contratti.rinnova', $contratto) }}"
                                           method="POST"
                                           class="inline">
                                         @csrf
@@ -176,7 +201,7 @@
                                     </form>
                                 @endif
 
-                                <form action="{{ route('contratti.destroy', $contratto->id) }}"
+                                <form action="{{ route('contratti.destroy', $contratto) }}"
                                       method="POST"
                                       class="inline"
                                       onsubmit="return confirm('Sei sicuro di voler eliminare questo contratto?{{ $contratto->hasScadenzePagate() ? ' ATTENZIONE: Ci sono scadenze pagate!' : '' }}');">

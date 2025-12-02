@@ -17,15 +17,31 @@ class Contratto extends Model
         'data_fine',
         'valore',
         'numero_rate',
-        'stato'
+        'stato',
+        'rinnovo_automatico',
+        'rinnovo_automatico_at'
     ];
 
     protected $casts = [
         'data_inizio' => 'date',
         'data_fine' => 'date',
-        'valore' => 'decimal:2'
+        'valore' => 'decimal:2',
+        'rinnovo_automatico' => 'boolean',
+        'rinnovo_automatico_at' => 'datetime'
     ];
 
+// Scope per contratti da confermare
+    public function scopeDaConfermare($query)
+    {
+        return $query->where('rinnovo_automatico', true)
+            ->where('stato', 'attivo');
+    }
+
+// Verifica se è un rinnovo da confermare
+    public function isRinnovoAutomatico()
+    {
+        return $this->rinnovo_automatico === true && $this->stato === 'attivo';
+    }
     public function piazzola()
     {
         return $this->belongsTo(Piazzola::class);

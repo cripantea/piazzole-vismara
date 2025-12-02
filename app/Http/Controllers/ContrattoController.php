@@ -26,14 +26,35 @@ class ContrattoController extends Controller
             });
         }
 
-        // Ordinamento
+        // Ordinamento - i contratti da confermare vanno SEMPRE in cima
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
-        $query->orderBy($sortBy, $sortOrder);
+
+        // Prima ordina per rinnovo_automatico DESC (true prima di false)
+        // poi applica l'ordinamento richiesto
+        $query->orderBy('rinnovo_automatico', 'desc')
+            ->orderBy($sortBy, $sortOrder);
 
         $contratti = $query->paginate(15);
 
         return view('contratti.index', compact('contratti'));
+    }
+
+// Conferma rinnovo automatico
+    public function confermaRinnovo(Contratto $contratto)
+    {
+        if (!$contratto->isRinnovoAutomatico()) {
+            return redirect()->back()
+                ->with('error', 'Questo contratto non è un rinnovo automatico da confermare.');
+        }
+
+        $contratto->update([
+            'rinnovo_automatico' => false,
+            'rinnovo_automatico_at' => null
+        ]);
+
+        return redirect()->route('contratti.index')
+            ->with('success', 'Rinnovo confermato con successo!');
     }
 
     public function create()
@@ -111,9 +132,8 @@ class ContrattoController extends Controller
         return view('contratti.edit', compact('contratto', 'piazzole', 'clienti'));
     }
 
-    public function update(Request $request, int $id)
+    public function update(Request $request, Contratto $contratto)
     {
-        $contratto=Contratto::findOrFail($id);
         $validated = $request->validate([
             'piazzola_id' => 'required|exists:piazzole,id',
             'cliente_id' => 'required|exists:clienti,id',
@@ -146,6 +166,9 @@ class ContrattoController extends Controller
         }
 
         DB::transaction(function () use ($validated, $contratto) {
+            // Se era un rinnovo automatico, confermalo
+            $wasRinnovoAutomatico = $contratto->isRinnovoAutomatico();
+
             // Aggiorna il contratto
             $contratto->update([
                 'piazzola_id' => $validated['piazzola_id'],
@@ -155,6 +178,8 @@ class ContrattoController extends Controller
                 'valore' => $validated['valore'],
                 'numero_rate' => $validated['numero_rate'],
                 'stato' => $validated['stato'],
+                'rinnovo_automatico' => false, // Conferma automaticamente
+                'rinnovo_automatico_at' => null
             ]);
 
             // Aggiorna le scadenze non pagate
@@ -172,9 +197,8 @@ class ContrattoController extends Controller
         });
 
         return redirect()->route('contratti.index')
-            ->with('success', 'Contratto aggiornato con successo!');
+            ->with('success', 'Contratto aggiornato' . ($contratto->wasChanged('rinnovo_automatico') ? ' e confermato' : '') . ' con successo!');
     }
-
     public function destroy(int $id)
     {
         // Impedisci eliminazione se ci sono scadenze pagate
