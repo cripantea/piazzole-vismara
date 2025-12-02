@@ -190,70 +190,6 @@ class ContrattoController extends Controller
             ->with('success', 'Contratto eliminato con successo!');
     }
 
-// Chiudi contratto (segna come completato)
-    public function chiudi(int $id)
-    {
-        $contratto=Contratto::findOrFail($id);
-        if (!$contratto->tutteScadenzePagate()) {
-            return redirect()->back()
-                ->with('error', 'Impossibile chiudere il contratto: ci sono ancora scadenze non pagate!');
-        }
-
-        $contratto->update(['stato' => 'completato']);
-
-        return redirect()->route('contratti.index')
-            ->with('success', 'Contratto chiuso con successo!');
-    }
-
-// Rinnova contratto (crea un nuovo contratto per il periodo successivo)
-    public function rinnova(int $id)
-    {
-        $contratto=Contratto::findOrFail($id);
-        if (!$contratto->tutteScadenzePagate()) {
-            return redirect()->back()
-                ->with('error', 'Impossibile rinnovare il contratto: ci sono ancora scadenze non pagate!');
-        }
-
-        DB::transaction(function () use ($contratto) {
-            // Chiudi il contratto corrente
-            $contratto->update(['stato' => 'completato']);
-
-            // Calcola le nuove date
-            $durataMesi = $contratto->durataMesi();
-            $nuovaDataInizio = $contratto->data_fine->copy()->addDay();
-            $nuovaDataFine = $nuovaDataInizio->copy()->addMonths($durataMesi)->subDay();
-
-            // Crea nuovo contratto
-            $nuovoContratto = Contratto::create([
-                'piazzola_id' => $contratto->piazzola_id,
-                'cliente_id' => $contratto->cliente_id,
-                'data_inizio' => $nuovaDataInizio,
-                'data_fine' => $nuovaDataFine,
-                'valore' => $contratto->valore,
-                'numero_rate' => $contratto->numero_rate,
-                'stato' => 'attivo',
-            ]);
-
-            // Crea le nuove scadenze basate su quelle vecchie
-            $intervalloMesi = $durataMesi / $contratto->numero_rate;
-
-            foreach ($contratto->scadenze as $index => $vecchiaScadenza) {
-                $mesiDaAggiungere = round($intervalloMesi * $index);
-                $nuovaData = $nuovaDataInizio->copy()->addMonths($mesiDaAggiungere);
-
-                Scadenza::create([
-                    'contratto_id' => $nuovoContratto->id,
-                    'numero_rata' => $vecchiaScadenza->numero_rata,
-                    'data' => $nuovaData,
-                    'importo' => $vecchiaScadenza->importo,
-                ]);
-            }
-        });
-
-        return redirect()->route('contratti.index')
-            ->with('success', 'Contratto rinnovato con successo per il periodo successivo!');
-    }
-
     // API endpoint per generare le scadenze in anteprima
     public function generaScadenze(Request $request)
     {
@@ -297,4 +233,103 @@ class ContrattoController extends Controller
 
         return response()->json(['scadenze' => $scadenze]);
     }
+
+    public function showChiusura(int $id)
+    {
+        $contratto = Contratto::findOrFail($id);
+        return view('contratti.chiusura', compact('contratto'));
+    }
+
+// Chiudi contratto con data specifica
+    public function chiudi(Request $request, int $id)
+    {
+        $contratto = Contratto::findOrFail($id);
+        //dd($contratto);
+        $validated = $request->validate([
+            'data_chiusura' => 'required|date|after_or_equal:' . $contratto->data_inizio->format('Y-m-d')
+        ]);
+
+        $dataChiusura = Carbon::parse($validated['data_chiusura']);
+
+        DB::transaction(function () use ($contratto, $dataChiusura) {
+            // Aggiorna la data fine del contratto
+            $contratto->update([
+                'data_fine' => $dataChiusura,
+                'stato' => 'completato'
+            ]);
+
+            // Elimina le scadenze non pagate successive alla data di chiusura
+            $scadenzeEliminare = $contratto->scadenze()
+                ->whereNull('data_pagamento')
+                ->where('data', '>', $dataChiusura)
+                ->get();
+
+            foreach ($scadenzeEliminare as $scadenza) {
+                $scadenza->delete();
+            }
+
+            // Ricalcola il valore del contratto basandosi sulle scadenze rimaste
+            $nuovoValore = $contratto->scadenze()->sum('importo');
+            $contratto->update([
+                'valore' => $nuovoValore,
+                'numero_rate' => $contratto->scadenze()->count()
+            ]);
+        });
+
+        return redirect()->route('contratti.index')
+            ->with('success', 'Contratto chiuso con successo! Scadenze successive eliminate.');
+    }
+
+// Rinnova contratto
+    public function rinnova(int $id)
+    {
+        $contratto = Contratto::findOrFail($id);
+        if (!$contratto->tutteScadenzePagate()) {
+            return redirect()->back()
+                ->with('error', 'Impossibile rinnovare il contratto: ci sono ancora scadenze non pagate!');
+        }
+
+        DB::transaction(function () use ($contratto) {
+            // Il contratto corrente è già completato o lo chiudiamo
+            if ($contratto->stato !== 'completato') {
+                $contratto->update(['stato' => 'completato']);
+            }
+
+            // Calcola le nuove date
+            $durataMesi = $contratto->data_inizio->diffInMonths($contratto->data_fine);
+            $nuovaDataInizio = $contratto->data_fine->copy()->addDay();
+            $nuovaDataFine = $nuovaDataInizio->copy()->addMonths($durataMesi);
+
+            // Crea nuovo contratto
+            $nuovoContratto = Contratto::create([
+                'piazzola_id' => $contratto->piazzola_id,
+                'cliente_id' => $contratto->cliente_id,
+                'data_inizio' => $nuovaDataInizio,
+                'data_fine' => $nuovaDataFine,
+                'valore' => $contratto->valore,
+                'numero_rate' => $contratto->numero_rate,
+                'stato' => 'attivo',
+            ]);
+
+            // Crea le nuove scadenze basate su quelle vecchie
+            $intervalloMesi = $durataMesi / $contratto->numero_rate;
+
+            foreach ($contratto->scadenze as $index => $vecchiaScadenza) {
+                $mesiDaAggiungere = round($intervalloMesi * $index);
+                $nuovaData = $nuovaDataInizio->copy()->addMonths($mesiDaAggiungere);
+
+                Scadenza::create([
+                    'contratto_id' => $nuovoContratto->id,
+                    'numero_rata' => $vecchiaScadenza->numero_rata,
+                    'data' => $nuovaData,
+                    'importo' => $vecchiaScadenza->importo,
+                ]);
+            }
+        });
+
+        return redirect()->route('contratti.index')
+            ->with('success', 'Contratto rinnovato con successo per il periodo successivo!');
+    }
+
+
 }

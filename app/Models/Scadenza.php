@@ -11,6 +11,7 @@ class Scadenza extends Model
 
     protected $fillable = [
         'contratto_id',
+        'scadenza_originale_id',
         'numero_rata',
         'data',
         'importo',
@@ -38,6 +39,18 @@ class Scadenza extends Model
     public function isScaduta()
     {
         return is_null($this->data_pagamento) && $this->data->isPast();
+    }
+
+// Relazione alla scadenza originale
+    public function scadenzaOriginale()
+    {
+        return $this->belongsTo(Scadenza::class, 'scadenza_originale_id');
+    }
+
+// Scadenze derivate da questa
+    public function scadenzeDerivate()
+    {
+        return $this->hasMany(Scadenza::class, 'scadenza_originale_id');
     }
 
     // Scope per scadenze non pagate

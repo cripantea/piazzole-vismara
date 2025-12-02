@@ -20,6 +20,13 @@
             </div>
         @endif
 
+        <!-- Messaggi di errore -->
+        @if(session('error'))
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <!-- Barra di ricerca -->
         <form method="GET" action="{{ route('contratti.index') }}" class="mb-6">
             <div class="flex gap-2">
@@ -47,19 +54,55 @@
                 <thead class="bg-gray-50">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Piazzola
+                        <a href="{{ route('contratti.index', array_merge(request()->all(), ['sort_by' => 'piazzola_id', 'sort_order' => request('sort_by') === 'piazzola_id' && request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}"
+                           class="hover:text-gray-700">
+                            Piazzola
+                            @if(request('sort_by') === 'piazzola_id')
+                                <span>{{ request('sort_order') === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Cliente
+                        <a href="{{ route('contratti.index', array_merge(request()->all(), ['sort_by' => 'cliente_id', 'sort_order' => request('sort_by') === 'cliente_id' && request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}"
+                           class="hover:text-gray-700">
+                            Cliente
+                            @if(request('sort_by') === 'cliente_id')
+                                <span>{{ request('sort_order') === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Valore
+                        <a href="{{ route('contratti.index', array_merge(request()->all(), ['sort_by' => 'data_inizio', 'sort_order' => request('sort_by') === 'data_inizio' && request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}"
+                           class="hover:text-gray-700">
+                            Periodo
+                            @if(request('sort_by') === 'data_inizio')
+                                <span>{{ request('sort_order') === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <a href="{{ route('contratti.index', array_merge(request()->all(), ['sort_by' => 'valore', 'sort_order' => request('sort_by') === 'valore' && request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}"
+                           class="hover:text-gray-700">
+                            Valore
+                            @if(request('sort_by') === 'valore')
+                                <span>{{ request('sort_order') === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Rate
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Prossima Scadenza
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Stato
+                        <a href="{{ route('contratti.index', array_merge(request()->all(), ['sort_by' => 'stato', 'sort_order' => request('sort_by') === 'stato' && request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}"
+                           class="hover:text-gray-700">
+                            Stato
+                            @if(request('sort_by') === 'stato')
+                                <span>{{ request('sort_order') === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
                     </th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Azioni
@@ -76,14 +119,22 @@
                             {{ $contratto->cliente->nome }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ $contratto->data_inizio->format('d/m/Y') }} - {{ $contratto->data_fine->format('d/m/Y') }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
                             € {{ number_format($contratto->valore, 2, ',', '.') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ $contratto->scadenzePagate()->count() }} / {{ $contratto->numero_rate }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             @if($contratto->prossimaScadenza)
-                                {{ $contratto->prossimaScadenza->data->format('d/m/Y') }}
-                                <span class="text-xs text-gray-500">
-                                    (€ {{ number_format($contratto->prossimaScadenza->importo, 2, ',', '.') }})
-                                </span>
+                                <div class="flex flex-col">
+                                    <span class="font-medium">{{ $contratto->prossimaScadenza->data->format('d/m/Y') }}</span>
+                                    <span class="text-xs text-gray-500">
+                                        € {{ number_format($contratto->prossimaScadenza->importo, 2, ',', '.') }}
+                                    </span>
+                                </div>
                             @else
                                 <span class="text-gray-400">-</span>
                             @endif
@@ -97,25 +148,52 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{{ route('contratti.edit', $contratto->id) }}"
-                               class="text-blue-600 hover:text-blue-900 mr-3">
-                                Modifica
-                            </a>
-                            <form action="{{ route('contratti.destroy', $contratto->id) }}"
-                                  method="POST"
-                                  class="inline"
-                                  onsubmit="return confirm('Sei sicuro di voler eliminare questo contratto? Verranno eliminate anche tutte le scadenze associate.');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900">
-                                    Elimina
-                                </button>
-                            </form>
+                            <div class="flex justify-end gap-2">
+                                <a href="{{ route('contratti.edit', $contratto->id) }}"
+                                   class="text-blue-600 hover:text-blue-900">
+                                    Modifica
+                                </a>
+
+                                @if($contratto->stato !== 'completato')
+                                    @php
+                                    @endphp
+                                    <a href="{{ route('contratti.chiusura', $contratto->id) }}"
+                                       class="text-yellow-600 hover:text-yellow-900">
+                                        Chiudi
+                                    </a>
+                                @endif
+
+                                @if($contratto->tutteScadenzePagate() && $contratto->stato === 'completato')
+                                    <form action="{{ route('contratti.rinnova', $contratto->id) }}"
+                                          method="POST"
+                                          class="inline">
+                                        @csrf
+                                        <button type="submit"
+                                                class="text-green-600 hover:text-green-900"
+                                                onclick="return confirm('Rinnovare questo contratto?');">
+                                            Rinnova
+                                        </button>
+                                    </form>
+                                @endif
+
+                                <form action="{{ route('contratti.destroy', $contratto->id) }}"
+                                      method="POST"
+                                      class="inline"
+                                      onsubmit="return confirm('Sei sicuro di voler eliminare questo contratto?{{ $contratto->hasScadenzePagate() ? ' ATTENZIONE: Ci sono scadenze pagate!' : '' }}');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            class="text-red-600 hover:text-red-900 {{ $contratto->hasScadenzePagate() ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                            {{ $contratto->hasScadenzePagate() ? 'disabled' : '' }}>
+                                        Elimina
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
                             Nessun contratto trovato
                         </td>
                     </tr>

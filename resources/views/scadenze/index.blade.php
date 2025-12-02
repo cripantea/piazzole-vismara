@@ -234,6 +234,11 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
                             € {{ number_format($scadenza->importo, 2, ',', '.') }}
+                            @if($scadenza->importo_originale && $scadenza->importo_originale > $scadenza->importo)
+                                <span class="text-xs text-blue-600">
+                                    (parz. di {{ number_format($scadenza->importo_originale, 2, ',', '.') }})
+                                </span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                             @if($scadenza->isPagata())
@@ -266,9 +271,22 @@
                                         Segna Pagata
                                     </button>
                                 </form>
+                                <a href="{{ route('scadenze.pagamento-parziale', $scadenza) }}"
+                                   class="text-blue-600 hover:text-blue-900">
+                                    Pag. Parziale
+                                </a>
                             @endif
                         </td>
+                    @if($scadenza->scadenza_originale_id)
+                        </tr>
+                        <tr class="bg-blue-50">
+                            <td class="px-6 py-4 text-xs text-blue-700" colspan="7">
+                                ↳ Rimanenza della Rata {{ $scadenza->numero_rata }}
+                            </td>
+                        </tr>
+                    @endif
                     </tr>
+
                 @empty
                     <tr>
                         <td colspan="7" class="px-6 py-4 text-center text-gray-500">

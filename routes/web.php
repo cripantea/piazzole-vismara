@@ -16,16 +16,21 @@ Route::get('/', [ScadenzaController::class, 'index'])->name('home');
 Route::get('scadenze', [ScadenzaController::class, 'index'])->name('scadenze.index');
 Route::put('scadenze/{scadenza}', [ScadenzaController::class, 'update'])->name('scadenze.update');
 Route::post('scadenze/{scadenza}/paga', [ScadenzaController::class, 'segnaComePagata'])->name('scadenze.paga');
+Route::get('scadenze/{scadenza}/pagamento-parziale', [ScadenzaController::class, 'showPagamentoParziale'])->name('scadenze.pagamento-parziale');
+Route::post('scadenze/{scadenza}/pagamento-parziale', [ScadenzaController::class, 'pagamentoParziale'])->name('scadenze.pagamento-parziale.store');
 Route::post('scadenze/{scadenza}/rimuovi-pagamento', [ScadenzaController::class, 'rimuoviPagamento'])->name('scadenze.rimuovi-pagamento');
+
+
 
 Route::resource('contratti', ContrattoController::class);
 Route::post('contratti/genera-scadenze', [ContrattoController::class, 'generaScadenze'])
     ->name('contratti.genera-scadenze');
+Route::get('contratti/{contratto}/chiusura', [ContrattoController::class, 'showChiusura'])
+    ->name('contratti.chiusura');
 Route::post('contratti/{contratto}/chiudi', [ContrattoController::class, 'chiudi'])
     ->name('contratti.chiudi');
 Route::post('contratti/{contratto}/rinnova', [ContrattoController::class, 'rinnova'])
     ->name('contratti.rinnova');
-
 Route::resource('clienti', ClienteController::class);
 
 Route::resource('piazzole', PiazzolaController::class);
