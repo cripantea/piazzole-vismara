@@ -262,19 +262,24 @@
                                     </button>
                                 </form>
                             @else
-                                <form action="{{ route('scadenze.paga', $scadenza) }}"
-                                      method="POST"
-                                      class="inline">
-                                    @csrf
-                                    <button type="submit"
-                                            class="text-green-600 hover:text-green-900">
-                                        Segna Pagata
-                                    </button>
-                                </form>
-                                <a href="{{ route('scadenze.pagamento-parziale', $scadenza) }}"
-                                   class="text-blue-600 hover:text-blue-900">
-                                    Pag. Parziale
-                                </a>
+                                <div class="flex flex-col gap-1 items-end">
+                                    <div class="flex gap-2">
+                                        <button type="button"
+                                                onclick="openPaymentModal('{{ route('scadenze.paga', $scadenza) }}')"
+                                                class="text-green-600 hover:text-green-900">
+                                            Segna Pagata
+                                        </button>
+                                        <a href="{{ route('scadenze.pagamento-parziale', $scadenza) }}"
+                                           class="text-blue-600 hover:text-blue-900">
+                                            Pag. Parziale
+                                        </a>
+                                    </div>
+                                    <a href="{{ route('scadenze.pagamento-multiplo', $scadenza) }}"
+                                       class="text-purple-600 hover:text-purple-900 font-semibold text-xs"
+                                       title="Distribuisci un importo totale tra più scadenze dello stesso contratto">
+                                        💰 Cifra Libera
+                                    </a>
+                                </div>
                             @endif
                         </td>
                     @if($scadenza->scadenza_originale_id)
@@ -303,4 +308,59 @@
             {{ $scadenze->withQueryString()->links() }}
         </div>
     </div>
+
+
+    <div id="payment-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Segna Scadenza Pagata</h3>
+
+            <form id="modal-payment-form" method="POST">
+                @csrf
+                <input type="hidden" name="_method" value="POST">
+
+                <label for="data_pagamento" class="block text-sm font-medium text-gray-700">Data di Pagamento</label>
+                <input type="date"
+                       name="data_pagamento"
+                       id="data_pagamento"
+                       required
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2">
+
+                <div class="mt-4 flex justify-end space-x-2">
+                    <button type="button"
+                            onclick="document.getElementById('payment-modal').classList.add('hidden')"
+                            class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                        Annulla
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                        Conferma Pagamento
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+        <script>
+            function openPaymentModal(actionUrl) {
+            // 1. Imposta l'URL di invio nel form della modale
+            const modalForm = document.getElementById('modal-payment-form');
+            modalForm.action = actionUrl;
+
+            // 2. Imposta la data odierna come valore di default (formato YYYY-MM-DD)
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('data_pagamento').value = today;
+
+            // 3. Mostra la modale
+            document.getElementById('payment-modal').classList.remove('hidden');
+        }
+
+            // Opzionale: Nascondi la modale se si clicca fuori
+            document.getElementById('payment-modal').addEventListener('click', function(e) {
+            if (e.target.id === 'payment-modal') {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+        });
+    </script>
+
 @endsection

@@ -83,16 +83,25 @@ class ScadenzaController extends Controller
     }
 
     // Metodo per segnare come pagata
-    public function segnaComePagata(Scadenza $scadenza)
+    public function segnaComePagata(Request $request, Scadenza $scadenza)
     {
+        $request->validate([
+            'data_pagamento' => 'required|date|before_or_equal:today',
+        ], [
+            'data_pagamento.required' => 'La data di pagamento è obbligatoria.',
+            'data_pagamento.date' => 'Il campo data deve contenere una data valida.',
+            'data_pagamento.before_or_equal' => 'La data di pagamento non può essere futura.',
+        ]);
+
+        $dataPagamento = $request->input('data_pagamento');
+
         $scadenza->update([
-            'data_pagamento' => now()->format('Y-m-d')
+            'data_pagamento' => $dataPagamento
         ]);
 
         return redirect()->back()
-            ->with('success', 'Scadenza segnata come pagata!');
+            ->with('success', 'Scadenza segnata come pagata in data: ' . $dataPagamento);
     }
-
     // Metodo per rimuovere il pagamento
     public function rimuoviPagamento(Scadenza $scadenza)
     {
@@ -144,6 +153,118 @@ class ScadenzaController extends Controller
 
         return redirect()->route('scadenze.index')
             ->with('success', 'Pagamento parziale registrato! Creata nuova scadenza per € ' . number_format($rimanenza, 2, ',', '.'));
+    }
+
+    // Mostra form pagamento multiplo (cifra libera)
+    public function showPagamentoMultiplo(int $id)
+    {
+        $scadenzaPartenza = Scadenza::with('contratto')->findOrFail($id);
+        //dd($scadenzaPartenza);
+        if ($scadenzaPartenza->isPagata()) {
+            return redirect()->back()
+                ->with('error', 'Questa scadenza è già stata pagata completamente!');
+        }
+
+        $contratto = $scadenzaPartenza->contratto;
+
+        // Ottieni tutte le scadenze non pagate dello stesso contratto
+        $scadenzeNonPagate = Scadenza::where('contratto_id', $contratto->id)
+            ->whereNull('data_pagamento')
+            ->orderBy('data', 'asc')
+            ->get();
+
+        if ($scadenzeNonPagate->isEmpty()) {
+            return redirect()->back()
+                ->with('error', 'Non ci sono scadenze non pagate per questo contratto!');
+        }
+
+        // Calcola data suggerita: giorno dopo l'ultima scadenza
+        $ultimaScadenza = $scadenzeNonPagate->sortByDesc('data')->first();
+        $dataSuggerita = $ultimaScadenza->data->addDay()->format('Y-m-d');
+
+        return view('scadenze.pagamento-multiplo', compact(
+            'scadenzaPartenza',
+            'contratto',
+            'scadenzeNonPagate',
+            'dataSuggerita'
+        ));
+    }
+
+    // Elabora pagamento multiplo (cifra libera)
+    public function pagamentoMultiplo(Request $request, Scadenza $scadenzaPartenza)
+    {
+        $validated = $request->validate([
+            'importo_totale' => 'required|numeric|min:0.01',
+            'scadenze' => 'required|array|min:1',
+            'scadenze.*.selezionata' => 'sometimes',
+            'scadenze.*.importo' => 'nullable|numeric|min:0',
+            'data_nuove_scadenze' => 'required|date'
+        ]);
+
+        $importoTotale = (float) $validated['importo_totale'];
+        $dataNuoveScadenze = $validated['data_nuove_scadenze'];
+
+        // Filtra solo le scadenze selezionate
+        $scadenzeSelezionate = collect($validated['scadenze'])
+            ->filter(fn($s) => isset($s['selezionata']) && $s['selezionata'])
+            ->map(function($s, $id) {
+                return [
+                    'id' => $id,
+                    'importo' => (float) ($s['importo'] ?? 0)
+                ];
+            })
+            ->filter(fn($s) => $s['importo'] > 0);
+
+        if ($scadenzeSelezionate->isEmpty()) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Seleziona almeno una scadenza con un importo valido!');
+        }
+
+        // Verifica che il totale distribuito corrisponda all'importo totale
+        $totaleDistribuito = $scadenzeSelezionate->sum('importo');
+        if (abs($totaleDistribuito - $importoTotale) > 0.01) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Il totale distribuito non corrisponde all\'importo totale!');
+        }
+
+        // Inizia transazione
+        DB::transaction(function () use ($scadenzeSelezionate, $dataNuoveScadenze) {
+            foreach ($scadenzeSelezionate as $scadenzaData) {
+                $scadenza = Scadenza::findOrFail($scadenzaData['id']);
+                $importoPagamento = $scadenzaData['importo'];
+
+                if ($importoPagamento >= $scadenza->importo - 0.01) {
+                    // Pagamento totale
+                    $scadenza->update([
+                        'data_pagamento' => now()->format('Y-m-d')
+                    ]);
+                } else {
+                    // Pagamento parziale
+                    $rimanenza = $scadenza->importo - $importoPagamento;
+
+                    // Aggiorna scadenza corrente
+                    $scadenza->update([
+                        'importo' => $importoPagamento,
+                        'data_pagamento' => now()->format('Y-m-d')
+                    ]);
+
+                    // Crea nuova scadenza per rimanenza
+                    Scadenza::create([
+                        'contratto_id' => $scadenza->contratto_id,
+                        'scadenza_originale_id' => $scadenza->id,
+                        'numero_rata' => $scadenza->numero_rata,
+                        'data' => $dataNuoveScadenze,
+                        'importo' => $rimanenza,
+                    ]);
+                }
+            }
+        });
+
+        $numeroScadenze = $scadenzeSelezionate->count();
+        return redirect()->route('scadenze.index')
+            ->with('success', "Pagamento multiplo registrato! {$numeroScadenze} scadenza" . ($numeroScadenze > 1 ? 'e' : '') . " elaborata" . ($numeroScadenze > 1 ? 'e' : '') . ".");
     }
 }
 

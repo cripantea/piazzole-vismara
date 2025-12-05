@@ -18,6 +18,8 @@ Route::put('scadenze/{scadenza}', [ScadenzaController::class, 'update'])->name('
 Route::post('scadenze/{scadenza}/paga', [ScadenzaController::class, 'segnaComePagata'])->name('scadenze.paga');
 Route::get('scadenze/{scadenza}/pagamento-parziale', [ScadenzaController::class, 'showPagamentoParziale'])->name('scadenze.pagamento-parziale');
 Route::post('scadenze/{scadenza}/pagamento-parziale', [ScadenzaController::class, 'pagamentoParziale'])->name('scadenze.pagamento-parziale.store');
+Route::get('scadenze/{scadenza}/pagamento-multiplo', [ScadenzaController::class, 'showPagamentoMultiplo'])->name('scadenze.pagamento-multiplo');
+Route::post('scadenze/{scadenza}/pagamento-multiplo', [ScadenzaController::class, 'pagamentoMultiplo'])->name('scadenze.pagamento-multiplo.store');
 Route::post('scadenze/{scadenza}/rimuovi-pagamento', [ScadenzaController::class, 'rimuoviPagamento'])->name('scadenze.rimuovi-pagamento');
 
 
