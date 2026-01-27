@@ -56,7 +56,7 @@ class PiazzolaController extends Controller
     public function update(Request $request, int $pid)
     {
         $piazzola = Piazzola::findOrFail($pid);
-        //dd($piazzola);
+        dd($piazzola);
         $validated = $request->validate([
             'identificativo' => 'required|string|max:255|unique:piazzole,identificativo,' . $piazzola->id,
             'nome' => 'required|string|max:255'
