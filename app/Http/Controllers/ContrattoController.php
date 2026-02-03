@@ -132,8 +132,10 @@ class ContrattoController extends Controller
         return view('contratti.edit', compact('contratto', 'piazzole', 'clienti'));
     }
 
-    public function update(Request $request, Contratto $contratto)
+    public function update(Request $request, int $contrattoId)
     {
+        $contratto= Contratto::findOrFail($contrattoId);
+
         $validated = $request->validate([
             'piazzola_id' => 'required|exists:piazzole,id',
             'cliente_id' => 'required|exists:clienti,id',
@@ -167,6 +169,8 @@ class ContrattoController extends Controller
 
         DB::transaction(function () use ($validated, $contratto) {
             // Se era un rinnovo automatico, confermalo
+
+            $contratto->refresh();
             $wasRinnovoAutomatico = $contratto->isRinnovoAutomatico();
 
             // Aggiorna il contratto

@@ -9,18 +9,8 @@ use Carbon\Carbon;
 class Contratto extends Model
 {
     protected $table = 'contratti';
+    protected $guarded = [];
 
-    protected $fillable = [
-        'piazzola_id',
-        'cliente_id',
-        'data_inizio',
-        'data_fine',
-        'valore',
-        'numero_rate',
-        'stato',
-        'rinnovo_automatico',
-        'rinnovo_automatico_at'
-    ];
 
     protected $casts = [
         'data_inizio' => 'date',
