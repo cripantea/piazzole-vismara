@@ -15,7 +15,11 @@ class ClienteController extends Controller
         // Filtro per ricerca
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where('nome', 'like', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                $q->where('nome', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('telefono', 'like', "%{$search}%");
+            });
         }
 
         // Ordinamento
@@ -36,7 +40,9 @@ class ClienteController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nome' => 'required|string|max:255'
+            'nome' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'telefono' => 'nullable|string|max:20'
         ]);
 
         Cliente::create($validated);
@@ -54,7 +60,9 @@ class ClienteController extends Controller
     public function update(Request $request, int $id)
     {
         $validated = $request->validate([
-            'nome' => 'required|string|max:255'
+            'nome' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'telefono' => 'nullable|string|max:20'
         ]);
         $cliente = Cliente::findOrFail($id);
         $cliente->update($validated);

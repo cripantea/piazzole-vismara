@@ -56,7 +56,10 @@
                         </a>
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Creato il
+                        Email
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Telefono
                     </th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Azioni
@@ -70,7 +73,10 @@
                             {{ $cliente->nome }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {{ $cliente->created_at->format('d/m/Y') }}
+                            {{ $cliente->email ?? '-' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ $cliente->telefono ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <a href="{{ route('clienti.edit', $cliente) }}"
@@ -91,7 +97,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="3" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">
                             Nessun cliente trovato
                         </td>
                     </tr>
