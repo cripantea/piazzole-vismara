@@ -19,7 +19,7 @@ class RinnovoAutomaticoContratti extends Command
         $this->info('Inizio processo di rinnovo automatico contratti...');
 
         // Trova contratti scaduti e completati che non sono già stati rinnovati
-        $contrattiScaduti = Contratto::where('stato', 'completato')
+        $contrattiScaduti = Contratto::where('stato', '<>', 'completato')
             ->where('data_fine', '<', now())
 //            ->whereDoesntHave('scadenzeNonPagate') // Solo se tutte le rate sono pagate
             ->get();
@@ -70,7 +70,8 @@ class RinnovoAutomaticoContratti extends Command
                             'importo' => $vecchiaScadenza->importo,
                         ]);
                     }
-
+                    $vecchioContratto->stato = 'completato';
+                    $vecchioContratto->save();
                     $rinnovati++;
                 });
 
