@@ -26,8 +26,10 @@ class ContrattoController extends Controller
             });
         }
 
-        // Filtro per contratti non chiusi
-        if ($request->has('solo_aperti') && $request->solo_aperti) {
+        // Filtro per contratti non chiusi (default: attivo)
+        // Mostra TUTTI solo se esplicitamente richiesto con solo_aperti=0
+        $soloAperti = $request->get('solo_aperti', '1'); // Default a '1' (solo aperti)
+        if ($soloAperti === '1' || $soloAperti === 1 || $soloAperti === true) {
             $query->where('stato', '!=', 'completato');
         }
 

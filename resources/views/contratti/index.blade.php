@@ -39,7 +39,7 @@
         @endif
 
         <!-- Barra di ricerca -->
-        <form method="GET" action="{{ route('contratti.index') }}" class="mb-6">
+        <form method="GET" action="{{ route('contratti.index') }}" class="mb-6" id="searchForm">
             <div class="flex gap-2">
                 <input type="text"
                        name="search"
@@ -50,7 +50,7 @@
                         class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors">
                     Cerca
                 </button>
-                @if(request('search') || request('solo_aperti'))
+                @if(request('search') || request('solo_aperti') === '0')
                     <a href="{{ route('contratti.index') }}"
                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg transition-colors">
                         Reset
@@ -59,10 +59,11 @@
             </div>
             <div class="mt-3">
                 <label class="inline-flex items-center cursor-pointer">
+                    <input type="hidden" name="solo_aperti" value="0">
                     <input type="checkbox"
                            name="solo_aperti"
                            value="1"
-                           {{ request('solo_aperti') ? 'checked' : '' }}
+                           {{ request('solo_aperti', '1') === '1' || request('solo_aperti', '1') === 1 ? 'checked' : '' }}
                            onchange="this.form.submit()"
                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
                     <span class="ml-2 text-sm font-medium text-gray-700">Mostra solo contratti non chiusi</span>
