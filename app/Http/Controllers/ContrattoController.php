@@ -16,21 +16,23 @@ class ContrattoController extends Controller
     {
         $query = Contratto::with(['piazzola', 'cliente', 'prossimaScadenza']);
 
-        // Filtro per ricerca
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->whereHas('piazzola', function($q) use ($search) {
-                $q->where('identificativo', 'like', "%{$search}%");
-            })->orWhereHas('cliente', function($q) use ($search) {
-                $q->where('nome', 'like', "%{$search}%");
-            });
-        }
-
         // Filtro per contratti non chiusi (default: attivo)
         // Mostra TUTTI solo se esplicitamente richiesto con solo_aperti=0
         $soloAperti = $request->get('solo_aperti', '1'); // Default a '1' (solo aperti)
         if ($soloAperti === '1' || $soloAperti === 1 || $soloAperti === true) {
             $query->where('stato', '!=', 'completato');
+        }
+
+        // Filtro per ricerca (deve essere DOPO il filtro stato per non bypassarlo)
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('piazzola', function($subQ) use ($search) {
+                    $subQ->where('identificativo', 'like', "%{$search}%");
+                })->orWhereHas('cliente', function($subQ) use ($search) {
+                    $subQ->where('nome', 'like', "%{$search}%");
+                });
+            });
         }
 
         // Ordinamento - i contratti da confermare vanno SEMPRE in cima
