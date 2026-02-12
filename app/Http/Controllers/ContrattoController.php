@@ -26,6 +26,11 @@ class ContrattoController extends Controller
             });
         }
 
+        // Filtro per contratti non chiusi
+        if ($request->has('solo_aperti') && $request->solo_aperti) {
+            $query->where('stato', '!=', 'completato');
+        }
+
         // Ordinamento - i contratti da confermare vanno SEMPRE in cima
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
