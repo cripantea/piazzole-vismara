@@ -59,17 +59,42 @@
             </div>
             <div class="mt-3">
                 <label class="inline-flex items-center cursor-pointer">
-                    <input type="hidden" name="solo_aperti" value="0">
                     <input type="checkbox"
                            name="solo_aperti"
                            value="1"
+                           id="soloApertiCheckbox"
                            {{ request('solo_aperti', '1') === '1' || request('solo_aperti', '1') === 1 ? 'checked' : '' }}
-                           onchange="this.form.submit()"
                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
                     <span class="ml-2 text-sm font-medium text-gray-700">Mostra solo contratti non chiusi</span>
                 </label>
             </div>
         </form>
+
+        <script>
+            document.getElementById('soloApertiCheckbox').addEventListener('change', function() {
+                // Se il checkbox è deselezionato, aggiungi un campo hidden con valore 0
+                const form = this.form;
+                const existingHidden = form.querySelector('input[name="solo_aperti"][type="hidden"]');
+
+                if (!this.checked) {
+                    if (!existingHidden) {
+                        const hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = 'solo_aperti';
+                        hidden.value = '0';
+                        hidden.id = 'soloApertiHidden';
+                        form.appendChild(hidden);
+                    }
+                } else {
+                    // Rimuovi il campo hidden se esiste
+                    if (existingHidden) {
+                        existingHidden.remove();
+                    }
+                }
+
+                form.submit();
+            });
+        </script>
 
         <!-- Tabella -->
         <div class="overflow-x-auto">
