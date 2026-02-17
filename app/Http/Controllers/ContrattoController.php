@@ -214,17 +214,18 @@ class ContrattoController extends Controller
     }
     public function destroy(int $id)
     {
-        // Impedisci eliminazione se ci sono scadenze pagate
-        $contratto=Contratto::findOrFail($id);
-        if ($contratto->hasScadenzePagate()) {
-            return redirect()->route('contratti.index')
-                ->with('error', 'Impossibile eliminare il contratto: ci sono scadenze già pagate!');
-        }
+        $contratto = Contratto::findOrFail($id);
 
-        $contratto->delete();
+        DB::transaction(function () use ($contratto) {
+            // Elimina prima tutte le scadenze (pagate o no)
+            $contratto->scadenze()->delete();
+
+            // Poi elimina il contratto
+            $contratto->delete();
+        });
 
         return redirect()->route('contratti.index')
-            ->with('success', 'Contratto eliminato con successo!');
+            ->with('success', 'Contratto e relative scadenze eliminati con successo!');
     }
 
     // API endpoint per generare le scadenze in anteprima

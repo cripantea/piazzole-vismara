@@ -241,12 +241,11 @@
                                 <form action="{{ route('contratti.destroy', $contratto) }}"
                                       method="POST"
                                       class="inline"
-                                      onsubmit="return confirm('Sei sicuro di voler eliminare questo contratto?{{ $contratto->hasScadenzePagate() ? ' ATTENZIONE: Ci sono scadenze pagate!' : '' }}');">
+                                      onsubmit="return confirm('Sei sicuro di voler eliminare questo contratto e tutte le sue scadenze?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit"
-                                            class="text-red-600 hover:text-red-900 {{ $contratto->hasScadenzePagate() ? 'opacity-50 cursor-not-allowed' : '' }}"
-                                            {{ $contratto->hasScadenzePagate() ? 'disabled' : '' }}>
+                                            class="text-red-600 hover:text-red-900">
                                         Elimina
                                     </button>
                                 </form>
