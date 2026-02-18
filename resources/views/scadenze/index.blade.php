@@ -147,27 +147,72 @@
         </form>
 
         <!-- Statistiche rapide -->
-        <div class="grid grid-cols-4 gap-4 mb-6">
-            <div class="bg-blue-50 p-4 rounded-lg">
-                <div class="text-sm text-blue-600 font-medium">Totale Scadenze</div>
-                <div class="text-2xl font-bold text-blue-900">{{ $scadenze->total() }}</div>
-            </div>
-            <div class="bg-green-50 p-4 rounded-lg">
-                <div class="text-sm text-green-600 font-medium">Importo Totale</div>
-                <div class="text-2xl font-bold text-green-900">
-                    € {{ number_format($scadenze->sum('importo'), 2, ',', '.') }}
+        <div class="grid grid-cols-4 gap-3 mb-6">
+            <!-- Colonna 1: Totale Scadenze -->
+            <div class="flex flex-col gap-3">
+                <!-- Totale Scadenze Globale -->
+                <div class="bg-blue-100 p-3 rounded-lg border-2 border-blue-200">
+                    <div class="text-xs text-blue-700 font-medium">Totale Scadenze (Globale)</div>
+                    <div class="text-xl font-bold text-blue-900">{{ $scadenze->total() }}</div>
+                </div>
+                <!-- Totale Scadenze Pagina -->
+                <div class="bg-blue-50 p-3 rounded-lg">
+                    <div class="text-xs text-blue-600 font-medium">Totale Scadenze (Pagina)</div>
+                    <div class="text-xl font-bold text-blue-900">{{ $scadenze->count() }}</div>
                 </div>
             </div>
-            <div class="bg-yellow-50 p-4 rounded-lg">
-                <div class="text-sm text-yellow-600 font-medium">Non Pagate</div>
-                <div class="text-2xl font-bold text-yellow-900">
-                    {{ $scadenze->whereNull('data_pagamento')->count() }}
+
+            <!-- Colonna 2: Importo Totale -->
+            <div class="flex flex-col gap-3">
+                <!-- Importo Totale Globale -->
+                <div class="bg-green-100 p-3 rounded-lg border-2 border-green-200">
+                    <div class="text-xs text-green-700 font-medium">Importo Totale (Globale)</div>
+                    <div class="text-xl font-bold text-green-900">
+                        € {{ number_format($statsGlobali['importo_totale'], 2, ',', '.') }}
+                    </div>
+                </div>
+                <!-- Importo Totale Pagina -->
+                <div class="bg-green-50 p-3 rounded-lg">
+                    <div class="text-xs text-green-600 font-medium">Importo Totale (Pagina)</div>
+                    <div class="text-xl font-bold text-green-900">
+                        € {{ number_format($scadenze->sum('importo'), 2, ',', '.') }}
+                    </div>
                 </div>
             </div>
-            <div class="bg-red-50 p-4 rounded-lg">
-                <div class="text-sm text-red-600 font-medium">Scadute</div>
-                <div class="text-2xl font-bold text-red-900">
-                    {{ $scadenze->filter(fn($s) => $s->isScaduta())->count() }}
+
+            <!-- Colonna 3: Non Pagate -->
+            <div class="flex flex-col gap-3">
+                <!-- Non Pagate Globali -->
+                <div class="bg-yellow-100 p-3 rounded-lg border-2 border-yellow-200">
+                    <div class="text-xs text-yellow-700 font-medium">Non Pagate (Globale)</div>
+                    <div class="text-xl font-bold text-yellow-900">
+                        {{ $statsGlobali['non_pagate_count'] }} / € {{ number_format($statsGlobali['non_pagate_importo'], 2, ',', '.') }}
+                    </div>
+                </div>
+                <!-- Non Pagate Pagina -->
+                <div class="bg-yellow-50 p-3 rounded-lg">
+                    <div class="text-xs text-yellow-600 font-medium">Non Pagate (Pagina)</div>
+                    <div class="text-xl font-bold text-yellow-900">
+                        {{ $scadenze->whereNull('data_pagamento')->count() }} / € {{ number_format($scadenze->whereNull('data_pagamento')->sum('importo'), 2, ',', '.') }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonna 4: Scadute -->
+            <div class="flex flex-col gap-3">
+                <!-- Scadute Globali -->
+                <div class="bg-red-100 p-3 rounded-lg border-2 border-red-200">
+                    <div class="text-xs text-red-700 font-medium">Scadute (Globale)</div>
+                    <div class="text-xl font-bold text-red-900">
+                        {{ $statsGlobali['scadute_count'] }} / € {{ number_format($statsGlobali['scadute_importo'], 2, ',', '.') }}
+                    </div>
+                </div>
+                <!-- Scadute Pagina -->
+                <div class="bg-red-50 p-3 rounded-lg">
+                    <div class="text-xs text-red-600 font-medium">Scadute (Pagina)</div>
+                    <div class="text-xl font-bold text-red-900">
+                        {{ $scadenze->filter(fn($s) => $s->isScaduta())->count() }} / € {{ number_format($scadenze->filter(fn($s) => $s->isScaduta())->sum('importo'), 2, ',', '.') }}
+                    </div>
                 </div>
             </div>
         </div>

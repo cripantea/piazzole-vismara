@@ -61,13 +61,26 @@ class ScadenzaController extends Controller
         $sortOrder = $request->get('sort_order', 'asc');
         $query->orderBy($sortBy, $sortOrder);
 
+        // Calcola statistiche globali PRIMA della paginazione
+        $queryClone = clone $query;
+        $tutteScadenzeFiltrate = $queryClone->get();
+
+        $statsGlobali = [
+            'scadenze_totali_count' => $tutteScadenzeFiltrate->count(),
+            'importo_totale' => $tutteScadenzeFiltrate->sum('importo'),
+            'non_pagate_count' => $tutteScadenzeFiltrate->whereNull('data_pagamento')->count(),
+            'non_pagate_importo' => $tutteScadenzeFiltrate->whereNull('data_pagamento')->sum('importo'),
+            'scadute_count' => $tutteScadenzeFiltrate->filter(fn($s) => $s->isScaduta())->count(),
+            'scadute_importo' => $tutteScadenzeFiltrate->filter(fn($s) => $s->isScaduta())->sum('importo'),
+        ];
+
         $scadenze = $query->paginate(15);
 
         // Dati per i dropdown dei filtri
         $clienti = Cliente::orderBy('nome')->get();
         $piazzole = Piazzola::orderBy('identificativo')->get();
 
-        return view('scadenze.index', compact('scadenze', 'clienti', 'piazzole'));
+        return view('scadenze.index', compact('scadenze', 'clienti', 'piazzole', 'statsGlobali'));
     }
 
     public function update(Request $request, Scadenza $scadenza)
