@@ -53,6 +53,25 @@ class Scadenza extends Model
         return $this->hasMany(Scadenza::class, 'scadenza_originale_id');
     }
 
+    // Somma ricorsiva: importo di questa scadenza + tutti i discendenti
+    public function importoChain(): float
+    {
+        $totale = (float) $this->importo;
+        foreach ($this->scadenzeDerivate as $derivata) {
+            $totale += $derivata->importoChain();
+        }
+        return $totale;
+    }
+
+    // Elimina ricorsivamente tutti i discendenti
+    public function eliminaDiscendenti(): void
+    {
+        foreach ($this->scadenzeDerivate as $derivata) {
+            $derivata->eliminaDiscendenti();
+            $derivata->delete();
+        }
+    }
+
     // Scope per scadenze non pagate
     public function scopeNonPagate($query)
     {

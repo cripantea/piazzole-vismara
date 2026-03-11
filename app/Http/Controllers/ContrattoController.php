@@ -23,6 +23,21 @@ class ContrattoController extends Controller
             $query->where('stato', '!=', 'completato');
         }
 
+        // Filtro per recupero crediti
+        if ($request->get('recupero_crediti') === '1') {
+            $query->where('recupero_crediti', true);
+        }
+
+        // Filtro per contratto specifico
+        if ($request->filled('contratto_id')) {
+            $query->where('id', $request->contratto_id);
+        }
+
+        // Filtro per cliente
+        if ($request->filled('cliente_id')) {
+            $query->where('cliente_id', $request->cliente_id);
+        }
+
         // Filtro per ricerca (deve essere DOPO il filtro stato per non bypassarlo)
         if ($request->has('search') && $request->search) {
             $search = $request->search;
@@ -83,6 +98,7 @@ class ContrattoController extends Controller
             'data_fine' => 'required|date|after:data_inizio',
             'valore' => 'required|numeric|min:0',
             'numero_rate' => 'required|integer|min:1',
+            'recupero_crediti' => 'boolean',
             'scadenze' => 'required|array',
             'scadenze.*.data' => 'required|date',
             'scadenze.*.importo' => 'required|numeric|min:0',
@@ -115,6 +131,7 @@ class ContrattoController extends Controller
                 'data_fine' => $validated['data_fine'],
                 'valore' => $validated['valore'],
                 'numero_rate' => $validated['numero_rate'],
+                'recupero_crediti' => $validated['recupero_crediti'] ?? false,
             ]);
 
             // Crea le scadenze
@@ -153,6 +170,7 @@ class ContrattoController extends Controller
             'valore' => 'required|numeric|min:0',
             'numero_rate' => 'required|integer|min:1',
             'stato' => 'required|in:attivo,completato,sospeso',
+            'recupero_crediti' => 'boolean',
             'scadenze' => 'required|array',
             'scadenze.*.id' => 'required|exists:scadenze,id',
             'scadenze.*.data' => 'required|date',
@@ -191,6 +209,7 @@ class ContrattoController extends Controller
                 'valore' => $validated['valore'],
                 'numero_rate' => $validated['numero_rate'],
                 'stato' => $validated['stato'],
+                'recupero_crediti' => $validated['recupero_crediti'] ?? false,
                 'rinnovo_automatico' => false, // Conferma automaticamente
                 'rinnovo_automatico_at' => null
             ]);

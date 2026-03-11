@@ -50,14 +50,14 @@
                         class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors">
                     Cerca
                 </button>
-                @if(request('search') || request('solo_aperti') === '0')
+                @if(request('search') || request('solo_aperti') === '0' || request('recupero_crediti') === '1' || request('cliente_id') || request('contratto_id'))
                     <a href="{{ route('contratti.index') }}"
                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg transition-colors">
                         Reset
                     </a>
                 @endif
             </div>
-            <div class="mt-3">
+            <div class="mt-3 flex gap-6">
                 <label class="inline-flex items-center cursor-pointer">
                     <input type="checkbox"
                            name="solo_aperti"
@@ -67,12 +67,20 @@
                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
                     <span class="ml-2 text-sm font-medium text-gray-700">Mostra solo contratti non chiusi</span>
                 </label>
+                <label class="inline-flex items-center cursor-pointer">
+                    <input type="checkbox"
+                           name="recupero_crediti"
+                           value="1"
+                           id="recuperoCreditiCheckbox"
+                           {{ request('recupero_crediti') === '1' ? 'checked' : '' }}
+                           class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2">
+                    <span class="ml-2 text-sm font-medium text-gray-700">Solo recupero crediti</span>
+                </label>
             </div>
         </form>
 
         <script>
             document.getElementById('soloApertiCheckbox').addEventListener('change', function() {
-                // Se il checkbox è deselezionato, aggiungi un campo hidden con valore 0
                 const form = this.form;
                 const existingHidden = form.querySelector('input[name="solo_aperti"][type="hidden"]');
 
@@ -82,17 +90,17 @@
                         hidden.type = 'hidden';
                         hidden.name = 'solo_aperti';
                         hidden.value = '0';
-                        hidden.id = 'soloApertiHidden';
                         form.appendChild(hidden);
                     }
                 } else {
-                    // Rimuovi il campo hidden se esiste
-                    if (existingHidden) {
-                        existingHidden.remove();
-                    }
+                    if (existingHidden) existingHidden.remove();
                 }
 
                 form.submit();
+            });
+
+            document.getElementById('recuperoCreditiCheckbox').addEventListener('change', function() {
+                this.form.submit();
             });
         </script>
 
@@ -152,6 +160,9 @@
                             @endif
                         </a>
                     </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Rec. Crediti
+                    </th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Azioni
                     </th>
@@ -161,7 +172,10 @@
                 @forelse($contratti as $contratto)
                     <tr class="hover:bg-gray-50 {{ $contratto->isRinnovoAutomatico() ? 'bg-orange-50 border-l-4 border-orange-500' : '' }}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {{ $contratto->piazzola->identificativo }}
+                            <a href="{{ route('scadenze.index', ['contratto_id' => $contratto->id]) }}"
+                               class="text-blue-700 hover:underline">
+                                {{ $contratto->piazzola->identificativo }}
+                            </a>
                             @if($contratto->isRinnovoAutomatico())
                                 <span class="ml-2 text-xs bg-orange-500 text-white px-2 py-1 rounded">NUOVO</span>
                             @endif
@@ -197,6 +211,15 @@
                                 {{ $contratto->stato === 'sospeso' ? 'bg-yellow-100 text-yellow-800' : '' }}">
                                 {{ ucfirst($contratto->stato) }}
                             </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if($contratto->recupero_crediti)
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    Rec. crediti
+                                </span>
+                            @else
+                                <span class="text-gray-300">—</span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end gap-2 flex-wrap">
@@ -254,7 +277,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="9" class="px-6 py-4 text-center text-gray-500">
                             Nessun contratto trovato
                         </td>
                     </tr>

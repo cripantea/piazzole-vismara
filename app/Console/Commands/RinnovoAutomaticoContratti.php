@@ -19,8 +19,10 @@ class RinnovoAutomaticoContratti extends Command
         $this->info('Inizio processo di rinnovo automatico contratti...');
 
         // Trova contratti scaduti e completati che non sono già stati rinnovati
+        // Esclude i contratti di recupero crediti (non si rinnovano automaticamente)
         $contrattiScaduti = Contratto::where('stato', '<>', 'completato')
             ->where('data_fine', '<', now())
+            ->where('recupero_crediti', false)
 //            ->whereDoesntHave('scadenzeNonPagate') // Solo se tutte le rate sono pagate
             ->get();
 //dd($contrattiScaduti);

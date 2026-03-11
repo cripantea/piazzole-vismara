@@ -70,7 +70,10 @@
                 @forelse($clienti as $cliente)
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {{ $cliente->nome }}
+                            <a href="{{ route('contratti.index', ['cliente_id' => $cliente->id, 'solo_aperti' => '0']) }}"
+                               class="text-blue-700 hover:underline">
+                                {{ $cliente->nome }}
+                            </a>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {{ $cliente->email ?? '-' }}

@@ -16,6 +16,21 @@
             </div>
         @endif
 
+        <!-- Banner filtro contratto attivo -->
+        @if($contrattoAttivo)
+            <div class="bg-blue-50 border border-blue-300 text-blue-800 px-4 py-3 rounded mb-4 flex items-center justify-between">
+                <span>
+                    Scadenze del contratto:
+                    <strong>{{ $contrattoAttivo->piazzola->identificativo }}</strong>
+                    — {{ $contrattoAttivo->cliente->nome }}
+                    ({{ $contrattoAttivo->data_inizio->format('d/m/Y') }} › {{ $contrattoAttivo->data_fine->format('d/m/Y') }})
+                </span>
+                <a href="{{ route('scadenze.index') }}" class="text-blue-600 hover:text-blue-900 text-sm font-medium ml-4">
+                    Rimuovi filtro ✕
+                </a>
+            </div>
+        @endif
+
         <!-- Filtri -->
         <form method="GET" action="{{ route('scadenze.index') }}" class="mb-6">
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
@@ -118,6 +133,10 @@
                 </div>
             </div>
 
+            @if(request('contratto_id'))
+                <input type="hidden" name="contratto_id" value="{{ request('contratto_id') }}">
+            @endif
+
             <div class="flex gap-2 items-center">
                 <!-- Checkbox Scadute -->
                 <div class="flex items-center">
@@ -137,7 +156,7 @@
                     Filtra
                 </button>
 
-                @if(request()->hasAny(['cliente_id', 'piazzola_id', 'data', 'mese', 'anno', 'stato_pagamento', 'scadute']))
+                @if(request()->hasAny(['cliente_id', 'piazzola_id', 'data', 'mese', 'anno', 'stato_pagamento', 'scadute', 'contratto_id']))
                     <a href="{{ route('scadenze.index') }}"
                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg transition-colors text-sm">
                         Reset Filtri
@@ -145,6 +164,9 @@
                 @endif
             </div>
         </form>
+
+        <!-- Debug (rimuovere dopo) -->
+        {{-- Debug: {{ json_encode($statsGlobali) }} --}}
 
         <!-- Statistiche rapide -->
         <div class="grid grid-cols-4 gap-3 mb-6">
@@ -261,10 +283,16 @@
                 @forelse($scadenze as $scadenza)
                     <tr class="hover:bg-gray-50 {{ $scadenza->isScaduta() ? 'bg-red-50' : '' }}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $scadenza->numero_rata }}
+                            <a href="{{ route('contratti.index', ['contratto_id' => $scadenza->contratto_id, 'solo_aperti' => '0']) }}"
+                               class="text-blue-700 hover:underline">
+                                {{ $scadenza->numero_rata }}
+                            </a>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $scadenza->contratto->cliente->nome }}
+                            <a href="{{ route('clienti.edit', $scadenza->contratto->cliente) }}"
+                               class="text-blue-700 hover:underline">
+                                {{ $scadenza->contratto->cliente->nome }}
+                            </a>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {{ $scadenza->contratto->piazzola->identificativo }}

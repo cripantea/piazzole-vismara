@@ -167,6 +167,21 @@
                 </div>
             </div>
 
+            <!-- Contratto di recupero crediti -->
+            <div class="mb-6">
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="hidden" name="recupero_crediti" value="0">
+                    <input type="checkbox"
+                           name="recupero_crediti"
+                           id="recupero_crediti"
+                           value="1"
+                           {{ old('recupero_crediti', $contratto->recupero_crediti) ? 'checked' : '' }}
+                           class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                    <span class="text-sm font-medium text-gray-700">Contratto di recupero crediti</span>
+                </label>
+                <p class="text-xs text-gray-500 mt-1 ml-7">I contratti di recupero crediti non vengono rinnovati automaticamente.</p>
+            </div>
+
             <!-- Errore validazione scadenze -->
             @error('scadenze')
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">

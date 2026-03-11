@@ -123,6 +123,21 @@
                 </div>
             </div>
 
+            <!-- Contratto di recupero crediti -->
+            <div class="mb-6">
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="hidden" name="recupero_crediti" value="0">
+                    <input type="checkbox"
+                           name="recupero_crediti"
+                           id="recupero_crediti"
+                           value="1"
+                           {{ old('recupero_crediti') ? 'checked' : '' }}
+                           class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                    <span class="text-sm font-medium text-gray-700">Contratto di recupero crediti</span>
+                </label>
+                <p class="text-xs text-gray-500 mt-1 ml-7">I contratti di recupero crediti non vengono rinnovati automaticamente.</p>
+            </div>
+
             <!-- Pulsante Genera Scadenze -->
             <div class="mb-6">
                 <button type="button"

@@ -16,6 +16,13 @@ class ScadenzaController extends Controller
     {
         $query = Scadenza::with(['contratto.cliente', 'contratto.piazzola']);
 
+        // Filtro per Contratto specifico
+        $contrattoAttivo = null;
+        if ($request->filled('contratto_id')) {
+            $query->where('contratto_id', $request->contratto_id);
+            $contrattoAttivo = \App\Models\Contratto::with(['cliente', 'piazzola'])->find($request->contratto_id);
+        }
+
         // Filtro per Cliente
         if ($request->filled('cliente_id')) {
             $query->whereHas('contratto', function($q) use ($request) {
@@ -56,23 +63,31 @@ class ScadenzaController extends Controller
                 ->where('data', '<', now()->subDay());
         }
 
+        // Calcola statistiche globali PRIMA dell'ordinamento e della paginazione
+        // Clona la query per ottenere tutte le scadenze filtrate
+        $tutteScadenzeFiltrate = (clone $query)->get();
+
+        // Filtra le scadenze non pagate
+        $nonPagate = $tutteScadenzeFiltrate->whereNull('data_pagamento');
+
+        // Filtra le scadenze scadute (non pagate e data passata)
+        $scadute = $tutteScadenzeFiltrate->filter(function($scadenza) {
+            return is_null($scadenza->data_pagamento) && $scadenza->data->isPast();
+        });
+
+        $statsGlobali = [
+            'importo_totale' => $tutteScadenzeFiltrate->sum('importo'),
+            'non_pagate_count' => $nonPagate->count(),
+            'non_pagate_importo' => $nonPagate->sum('importo'),
+            'scadute_count' => $scadute->count(),
+            'scadute_importo' => $scadute->sum('importo'),
+        ];
+
         // Ordinamento
         $sortBy = $request->get('sort_by', 'data');
         $sortOrder = $request->get('sort_order', 'asc');
         $query->orderBy($sortBy, $sortOrder);
 
-        // Calcola statistiche globali PRIMA della paginazione
-        $queryClone = clone $query;
-        $tutteScadenzeFiltrate = $queryClone->get();
-
-        $statsGlobali = [
-            'scadenze_totali_count' => $tutteScadenzeFiltrate->count(),
-            'importo_totale' => $tutteScadenzeFiltrate->sum('importo'),
-            'non_pagate_count' => $tutteScadenzeFiltrate->whereNull('data_pagamento')->count(),
-            'non_pagate_importo' => $tutteScadenzeFiltrate->whereNull('data_pagamento')->sum('importo'),
-            'scadute_count' => $tutteScadenzeFiltrate->filter(fn($s) => $s->isScaduta())->count(),
-            'scadute_importo' => $tutteScadenzeFiltrate->filter(fn($s) => $s->isScaduta())->sum('importo'),
-        ];
 
         $scadenze = $query->paginate(15);
 
@@ -80,7 +95,7 @@ class ScadenzaController extends Controller
         $clienti = Cliente::orderBy('nome')->get();
         $piazzole = Piazzola::orderBy('identificativo')->get();
 
-        return view('scadenze.index', compact('scadenze', 'clienti', 'piazzole', 'statsGlobali'));
+        return view('scadenze.index', compact('scadenze', 'clienti', 'piazzole', 'statsGlobali', 'contrattoAttivo'));
     }
 
     public function update(Request $request, Scadenza $scadenza)
@@ -118,9 +133,19 @@ class ScadenzaController extends Controller
     // Metodo per rimuovere il pagamento
     public function rimuoviPagamento(Scadenza $scadenza)
     {
-        $scadenza->update([
-            'data_pagamento' => null
-        ]);
+        DB::transaction(function () use ($scadenza) {
+            // Ripristina l'importo originale sommando tutta la catena dei discendenti
+            $importoRipristinato = $scadenza->importoChain();
+
+            // Elimina tutti i discendenti (scadenze create da pagamenti parziali)
+            $scadenza->eliminaDiscendenti();
+
+            // Ripristina importo e rimuove il pagamento
+            $scadenza->update([
+                'importo' => $importoRipristinato,
+                'data_pagamento' => null,
+            ]);
+        });
 
         return redirect()->back()
             ->with('success', 'Pagamento rimosso!');
@@ -141,6 +166,7 @@ class ScadenzaController extends Controller
     {
         $validated = $request->validate([
             'importo_pagato' => 'required|numeric|min:0.01|max:' . ($scadenza->importo - 0.01),
+            'data_pagamento' => 'required|date|before_or_equal:today',
             'data_nuova_scadenza' => 'required|date'
         ]);
 
@@ -151,7 +177,7 @@ class ScadenzaController extends Controller
             // Aggiorna la scadenza corrente: riduce importo e la chiude
             $scadenza->update([
                 'importo' => $importoPagato,
-                'data_pagamento' => now()->format('Y-m-d')
+                'data_pagamento' => $validated['data_pagamento']
             ]);
 
             // Crea nuova scadenza per la rimanenza

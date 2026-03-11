@@ -17,7 +17,8 @@ class Contratto extends Model
         'data_fine' => 'date',
         'valore' => 'decimal:2',
         'rinnovo_automatico' => 'boolean',
-        'rinnovo_automatico_at' => 'datetime'
+        'rinnovo_automatico_at' => 'datetime',
+        'recupero_crediti' => 'boolean',
     ];
 
 // Scope per contratti da confermare

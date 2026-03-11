@@ -69,6 +69,22 @@
             </div>
 
             <div class="mb-6">
+                <label for="data_pagamento" class="block text-sm font-medium text-gray-700 mb-2">
+                    Data Pagamento *
+                </label>
+                <input type="date"
+                       name="data_pagamento"
+                       id="data_pagamento"
+                       value="{{ old('data_pagamento', now()->format('Y-m-d')) }}"
+                       max="{{ now()->format('Y-m-d') }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('data_pagamento') border-red-500 @enderror"
+                       required>
+                @error('data_pagamento')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-6">
                 <label for="data_nuova_scadenza" class="block text-sm font-medium text-gray-700 mb-2">
                     Data Nuova Scadenza (per la rimanenza) *
                 </label>
