@@ -206,14 +206,14 @@
             <div class="flex flex-col gap-3">
                 <!-- Non Pagate Globali -->
                 <div class="bg-yellow-100 p-3 rounded-lg border-2 border-yellow-200">
-                    <div class="text-xs text-yellow-700 font-medium">Non Pagate (Globale)</div>
+                    <div class="text-xs text-yellow-700 font-medium">Da incassare (Globale)</div>
                     <div class="text-xl font-bold text-yellow-900">
                         {{ $statsGlobali['non_pagate_count'] }} / € {{ number_format($statsGlobali['non_pagate_importo'], 2, ',', '.') }}
                     </div>
                 </div>
                 <!-- Non Pagate Pagina -->
                 <div class="bg-yellow-50 p-3 rounded-lg">
-                    <div class="text-xs text-yellow-600 font-medium">Non Pagate (Pagina)</div>
+                    <div class="text-xs text-yellow-600 font-medium">Da incassare (Pagina)</div>
                     <div class="text-xl font-bold text-yellow-900">
                         {{ $scadenze->whereNull('data_pagamento')->count() }} / € {{ number_format($scadenze->whereNull('data_pagamento')->sum('importo'), 2, ',', '.') }}
                     </div>
