@@ -24,12 +24,6 @@ to contracts, payment schedules, automatic renewals, and PDF invoice generation.
 - Contract renewal automation
 - PDF generation for payment due notices (print-ready)
 
-## Screenshots
-
-![Dashboard](screenshots/dashboard.png)
-![Contracts](screenshots/contracts.png)
-![Payments](screenshots/payments.png)
-
 ## Setup
 ```bash
 git clone https://github.com/cripantea/piazzole-vismara
